@@ -4,13 +4,13 @@ import com.gennlife.packagingservice.arithmetic.express.enitity.FindIndexModel;
 import com.gennlife.packagingservice.arithmetic.express.enitity.NumberResultEntity;
 import com.gennlife.packagingservice.arithmetic.express.enums.ArrayOpEnum;
 import com.gennlife.packagingservice.arithmetic.express.enums.NumberOpEnum;
+import com.gennlife.packagingservice.arithmetic.express.format.NumberFormatArrayItem;
+import com.gennlife.packagingservice.arithmetic.express.interfaces.FormatArrayItem;
 import com.google.gson.JsonElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Chenjinfeng on 2017/10/20.
@@ -80,6 +80,31 @@ public class ObtainUtils {
             if (d != null) countList.add(item);
         }
         return countList;
+    }
+
+    public static <T> List<FindIndexModel<T>> sort(List<FindIndexModel<T>> list, final boolean asc, FormatArrayItem formatArrayItem) {
+        if (list == null || list.size() == 0) return null;
+        if (formatArrayItem == null) return null;
+        Set<FindIndexModel<T>> sort = new TreeSet<>(new Comparator<FindIndexModel<T>>() {
+            @Override
+            public int compare(FindIndexModel<T> o1, FindIndexModel<T> o2) {
+                Comparable o1Vlaue = formatArrayItem.format(o1.getValue());
+                Comparable o2Vlaue = formatArrayItem.format(o2.getValue());
+                if (asc) return o1Vlaue.compareTo(o2Vlaue);
+                else return o2Vlaue.compareTo(o1Vlaue);
+            }
+        });
+        List<FindIndexModel<T>> empty = new LinkedList<>();
+        for (FindIndexModel<T> item : list) {
+            T value = item.getValue();
+            Comparable d = formatArrayItem.format(value);
+            if (d != null) sort.add(item);
+            else empty.add(item);
+        }
+        List<FindIndexModel<T>> result = new LinkedList<>();
+        result.addAll(sort);
+        result.addAll(empty);
+        return result;
     }
 
     public static List<FindIndexModel<JsonElement>> formatForDateByList(List<FindIndexModel<JsonElement>> list) {
@@ -194,21 +219,7 @@ public class ObtainUtils {
     }
 
     public static <T> Double formatForDouble(T item) {
-        if (item instanceof Double) return (Double) item;
-        else if (item instanceof JsonElement) {
-            try {
-                return Double.valueOf(((JsonElement) item).getAsString());
-            } catch (Exception e) {
-                {
-                    logger.error("", e);
-                    return null;
-                }
-            }
-        } else if (item instanceof String) {
-            return Double.valueOf((String) item);
-        }
-        logger.error(" unknown type change to double " + item.getClass());
-        return null;
+        return NumberFormatArrayItem.INSTANSE.format(item);
     }
 
 }
