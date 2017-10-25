@@ -1,0 +1,31 @@
+{
+  "map": {
+    "visits": {
+      "arrayItems": {
+        "0": {
+          "map": {
+            "inspection_reports": {
+              "arrayItems": {
+                "1": {
+                  "map": {
+                    "SPECIMEN_NAME": {},
+                    "sub_inspection": {
+                      "arrayItems": {
+                        "19": {
+                          "map": {
+                            "INSPECTION_SN": {},
+                            "SUB_INSPECTION_EN": {}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

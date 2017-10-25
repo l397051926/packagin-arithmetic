@@ -1,0 +1,16 @@
+{
+  "operator": "or",
+  "detail": [
+    {
+      "key": "a.b",
+      "value": "1",
+
+      "operator": "equal"
+    },
+    {
+      "key": "a.c.d",
+      "value": "2",
+      "operator": "equal"
+    }
+  ]
+}
