@@ -23,7 +23,7 @@ public class FileUtil {
             content = readString(new InputStreamReader(inputStream, "utf-8"));
         } catch (IOException e) {
             logger.error("读取文件出错",e);
-            throw new RuntimeException();
+            return null;
         }finally {
             try {
                 if(inputStream != null){
@@ -31,7 +31,7 @@ public class FileUtil {
                 }
             } catch (IOException e) {
                 logger.error("", e);
-                throw new RuntimeException();
+                return null;
             }
         }
         return content;

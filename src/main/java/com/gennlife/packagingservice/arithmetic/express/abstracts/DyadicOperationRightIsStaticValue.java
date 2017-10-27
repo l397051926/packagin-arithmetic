@@ -18,11 +18,11 @@ import static com.gennlife.packagingservice.arithmetic.express.factorys.OperandD
  */
 public abstract class DyadicOperationRightIsStaticValue extends AbstractDirectOperandCheck {
     private static final Logger logger = LoggerFactory.getLogger(DyadicOperationRightIsStaticValue.class);
+
     @Override
     public final void count(JsonObject config, PathNode nodeContext, ConditionCheck conditionCheck) {
         AbstractStaticDataWrapper staticValue = getStaticValueWrapper(config, nodeContext, conditionCheck);
-        if(staticValue==null)
-        {
+        if (staticValue == null) {
             logger.error("static value is null ,error config " + JsonAttrUtil.toJsonStr(config));
             return;
         }
@@ -30,20 +30,16 @@ public abstract class DyadicOperationRightIsStaticValue extends AbstractDirectOp
         if (JsonAttrUtil.isEmptyJsonElement(value)) setTarget("");
         else if (value.isJsonArray()) setTarget(value.getAsJsonArray());
         else if (value.isJsonPrimitive()) setTarget(value.getAsString());
-        AbstractOperandDatasWrapper datasource = OperandDataFactory.getUnary(config, nodeContext, conditionCheck);
+        OperandDatasForEachCheckInterface datasource = OperandDataFactory.getUnary(config, nodeContext, conditionCheck);
         countByDataSource(config, datasource);
     }
 
-    protected void countByDataSource(JsonObject config, AbstractOperandDatasWrapper datasource) {
-        if (datasource != null && datasource instanceof OperandDatasForEachCheckInterface) {
-            OperandDatasForEachCheckInterface datasourceCanCheck = (OperandDatasForEachCheckInterface) datasource;
-            datasourceCanCheck.parse(this);
-            PathNode findPathNode=datasourceCanCheck.getFindPathNode();
-            setFindFlag(findPathNode != null);
-            setFindPathNode(findPathNode);
-        } else {
-            logger.error("error config " + JsonAttrUtil.toJsonStr(config));
-        }
+    protected void countByDataSource(JsonObject config, OperandDatasForEachCheckInterface datasourceCanCheck) {
+        datasourceCanCheck.parse(this);
+        PathNode findPathNode = datasourceCanCheck.getFindPathNode();
+        setFindFlag(findPathNode != null);
+        setFindPathNode(findPathNode);
+
     }
 
     protected abstract void setTarget(JsonArray jsonArray);

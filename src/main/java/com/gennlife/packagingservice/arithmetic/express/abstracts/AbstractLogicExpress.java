@@ -3,6 +3,7 @@ package com.gennlife.packagingservice.arithmetic.express.abstracts;
 import com.gennlife.packagingservice.arithmetic.express.ArithmeticExpress;
 import com.gennlife.packagingservice.arithmetic.express.ConditionCheck;
 import com.gennlife.packagingservice.arithmetic.express.enitity.PathNode;
+import com.gennlife.packagingservice.arithmetic.express.exceptions.PathNodeError;
 import com.gennlife.packagingservice.arithmetic.express.logic.AndLogicExpress;
 import com.gennlife.packagingservice.arithmetic.express.logic.OrLogicExpress;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
@@ -46,7 +47,7 @@ public abstract class AbstractLogicExpress implements ExpressInterface {
 
     @Override
     public ExpressInterface parse() {
-        if (globalPathNode == null) throw new RuntimeException("global Path node must not null");
+        if (globalPathNode == null) throw new PathNodeError("global Path node must not null");
         ExpressInterface express = null;
         for (JsonElement detailItem : detail) {
             JsonObject detailItemJson = detailItem.getAsJsonObject();

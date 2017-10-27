@@ -2,6 +2,7 @@ package com.gennlife.packagingservice.arithmetic.express;
 
 import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractLogicExpress;
 import com.gennlife.packagingservice.arithmetic.express.enitity.*;
+import com.gennlife.packagingservice.arithmetic.express.exceptions.ConfigError;
 import com.gennlife.packagingservice.arithmetic.express.exceptions.ExpressNoOriginDataError;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.SourceDataWrapperInterface;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
@@ -28,12 +29,13 @@ public class ConditionCheck {
     protected String operator;
     protected JsonArray detail;
     protected JsonObject condition;
-    private static final String ORIGIN_DATA_PATH_KEY="ORIGIN_DATA_PATH";
+    private static final String ORIGIN_DATA_PATH_KEY = "ORIGIN_DATA_PATH";
     private String lastPath;
     private static final String ORIGIN_DATA_KEY = "ORIGIN_DATA";
     private Map<String, SourceDataWrapperInterface> dataMap;
     protected static Logger logger = LoggerFactory.getLogger(ConditionCheck.class);
     public static final String REFKEY = "ref";
+
     public ConditionCheck(JsonObject toDoCondition, JsonObject globalcondition) {
         if (toDoCondition != null) this.toDoCondition = JsonAttrUtil.deepCopy(toDoCondition).getAsJsonObject();
         else this.toDoCondition = null;
@@ -92,7 +94,7 @@ public class ConditionCheck {
         LinkedList<JsonElement> refArray = new LinkedList<>();
         LinkedList<JsonElement> otherArray = new LinkedList<>();
         for (JsonElement jsonElement : detail) {
-            if (jsonElement == null ||jsonElement.isJsonNull()) continue;
+            if (jsonElement == null || jsonElement.isJsonNull()) continue;
             if (!jsonElement.isJsonObject()) {
                 logger.error("detail has error not json ");
             }
@@ -178,9 +180,10 @@ public class ConditionCheck {
 
 
     //for crf
+
     /**
      * only for crf
-     * */
+     */
 
     public LinkedList<LinkedList<PathItem>> getPathItems(LinkedList<FindIndexModel<JsonElement>> lists, JsonArray detail, String operator, LinkedList<LinkedList<PathItem>> tmpfindindex) {
         this.detail = detail;
@@ -193,11 +196,22 @@ public class ConditionCheck {
         return PathNode.getPathItem(result, getLastPath());
     }
 
+    public PathNode getPathItemsByPathNode(JsonObject patient) {
+        LinkedList<FindIndexModel<JsonElement>> lists = new LinkedList<>();
+        FindIndexModel findIndexModel = new FindIndexModel();
+        findIndexModel.setValue(patient);
+        findIndexModel.setKey(null);
+        findIndexModel.setP(null);
+        findIndexModel.setLeaf(true);
+        lists.add(findIndexModel);
+        return getPathItemsByPathNode(lists, null);
+    }
+
     public PathNode getPathItemsByPathNode(LinkedList<FindIndexModel<JsonElement>> lists, PathNode pathNode) {
         setOrigindata(lists);
         if (pathNode == null) pathNode = new PathNode();
-        AbstractLogicExpress logicexpress = AbstractLogicExpress.buildLogicExpress(this, detail, operator, pathNode,condition);
-        if (logicexpress == null) throw new RuntimeException("error operator " + operator);
+        AbstractLogicExpress logicexpress = AbstractLogicExpress.buildLogicExpress(this, detail, operator, pathNode, condition);
+        if (logicexpress == null) throw new ConfigError("error operator " + operator);
         logicexpress.parse();
         PathNode tmpPath = logicexpress.getFindPathNode();
         return tmpPath;
@@ -218,6 +232,7 @@ public class ConditionCheck {
         }
         return result.getData();
     }
+
     public PathNode getOriginDataPath() {
         PathNodeDataWrapper result = (PathNodeDataWrapper) getDataWrapper(ORIGIN_DATA_PATH_KEY);
         if (result == null || result.getData() == null) {
@@ -231,8 +246,8 @@ public class ConditionCheck {
         directDataWrapper.setData(origindata);
         addData(ORIGIN_DATA_KEY, directDataWrapper);
         PathNode dataPath = PathNode.getPathNodeFromJson(origindata);
-        PathNodeDataWrapper pathNodeDataWrapper=new PathNodeDataWrapper(dataPath);
-        addData(ORIGIN_DATA_PATH_KEY,pathNodeDataWrapper);
+        PathNodeDataWrapper pathNodeDataWrapper = new PathNodeDataWrapper(dataPath);
+        addData(ORIGIN_DATA_PATH_KEY, pathNodeDataWrapper);
     }
 
 

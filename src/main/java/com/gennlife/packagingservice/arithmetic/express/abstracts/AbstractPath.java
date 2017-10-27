@@ -1,8 +1,9 @@
 package com.gennlife.packagingservice.arithmetic.express.abstracts;
 
 import com.gennlife.packagingservice.arithmetic.express.enitity.FindIndexModel;
-import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.gennlife.packagingservice.arithmetic.express.enitity.SplitStrForKeyAndIndex;
+import com.gennlife.packagingservice.arithmetic.express.exceptions.PathError;
+import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public abstract class AbstractPath {
         String resultfrom = "";
         String[] froms = from.split("\\.");
         if ( froms.length == 0) {
-            throw new RuntimeException("unsupport " + from);
+            throw new PathError("unsupport " + from);
         }
         int i = 0;
         if (indexs != null) {

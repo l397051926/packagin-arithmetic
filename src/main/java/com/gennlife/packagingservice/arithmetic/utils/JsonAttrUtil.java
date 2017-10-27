@@ -3,6 +3,7 @@ package com.gennlife.packagingservice.arithmetic.utils;
 import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractPath;
 import com.gennlife.packagingservice.arithmetic.express.enitity.FindIndexModel;
 import com.gennlife.packagingservice.arithmetic.express.enitity.SplitStrForKeyAndIndex;
+import com.gennlife.packagingservice.arithmetic.express.exceptions.PathError;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -360,7 +361,7 @@ public class JsonAttrUtil {
             } else {
                 SplitStrForKeyAndIndex analise = new SplitStrForKeyAndIndex(keys[i]);
                 if (analise.getIndex() > -1) {
-                    throw new RuntimeException("unsupport " + keys[i]);
+                    throw new PathError("unsupport " + keys[i]);
                 }
                 return null;
 

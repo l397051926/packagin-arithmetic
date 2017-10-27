@@ -3,6 +3,7 @@ package com.gennlife.packagingservice.arithmetic.express.enitity;
 import com.gennlife.packagingservice.arithmetic.express.ConditionCheck;
 import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractDirectOperandCheck;
 import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractOperandDatasWrapper;
+import com.gennlife.packagingservice.arithmetic.express.exceptions.PathNodeError;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.OperandDatasForEachCheckInterface;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
@@ -18,14 +19,14 @@ import static com.gennlife.packagingservice.arithmetic.express.abstracts.Express
 /**
  * Created by Chenjinfeng on 2017/10/18.
  */
-public class DirectOperandDatasInterface extends AbstractOperandDatasWrapper implements OperandDatasForEachCheckInterface {
+public class DirectOperandDatas extends AbstractOperandDatasWrapper implements OperandDatasForEachCheckInterface {
     private final LinkedList<LinkedList<PathItem>> findindex;
     private LinkedList<FindIndexModel<JsonElement>> elements;
-    private static final String DESCIBEKEY = "unaryKey";
+    public static final String DESCIBEKEY = "unaryKey";
     private PathNode findPathNode;
-    private static final Logger logger = LoggerFactory.getLogger(DirectOperandDatasInterface.class);
+    private static final Logger logger = LoggerFactory.getLogger(DirectOperandDatas.class);
 
-    public DirectOperandDatasInterface(JsonObject config, PathNode contextNode, ConditionCheck conditionCheck) {
+    public DirectOperandDatas(JsonObject config, PathNode contextNode, ConditionCheck conditionCheck) {
         super(config, contextNode, conditionCheck);
         String detailkey = JsonAttrUtil.getStringValue(DETAIL_KEY, config);
         if (StringUtil.isEmptyStr(detailkey)) {
@@ -33,7 +34,7 @@ public class DirectOperandDatasInterface extends AbstractOperandDatasWrapper imp
         }
         this.findindex = PathNode.getPathItem(contextNode, detailkey);
         if (findindex == null) {
-            throw new RuntimeException(" findindex must not null");
+            throw new PathNodeError(" findindex must not null");
         }
         LinkedList<LinkedList<PathItem>> lastFindindex = findindex;
         LinkedList<FindIndexModel<JsonElement>> datas = conditionCheck.getOriginData();

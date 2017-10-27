@@ -1,5 +1,6 @@
 package com.gennlife.packagingservice.arithmetic.express.enitity;
 
+import com.gennlife.packagingservice.arithmetic.express.exceptions.CompareAnaliseError;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.FormatInterface;
 import com.gennlife.packagingservice.arithmetic.utils.DateUtil;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
@@ -64,7 +65,7 @@ public class CompareAnalise<T> {
 
     public void parse(String target) {
         String[] items = target.replace(" ", "").split(";");
-        if (items.length < 2) throw new RuntimeException("length must >=2 " + target);
+        if (items.length < 2) throw new CompareAnaliseError("length must >=2 " + target);
         for (String item : items) {
             if (item.equals("小于") || item.equals("<")) {
                 needLess = true;
@@ -89,7 +90,7 @@ public class CompareAnalise<T> {
         @Override
         public String format(String source) throws Exception {
             if (StringUtil.isEmptyStr(source))
-                throw new Exception("source must not null");
+                throw new CompareAnaliseError("source must not null");
             DateUtil.getDate(source);
             return source;
         }
@@ -98,7 +99,7 @@ public class CompareAnalise<T> {
         @Override
         public Double format(String source) throws Exception {
             if (StringUtil.isEmptyStr(source))
-                throw new Exception("source must not null");
+                throw new CompareAnaliseError("source must not null");
             return Double.valueOf(source);
         }
     };

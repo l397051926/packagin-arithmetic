@@ -2,6 +2,7 @@ package com.gennlife.packagingservice.arithmetic.express.enitity;
 
 
 import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractPath;
+import com.gennlife.packagingservice.arithmetic.express.exceptions.PathNodeError;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
 import com.google.gson.JsonArray;
@@ -58,7 +59,7 @@ public class PathNode {
     private void check() {
         if (this.arrayItems != null && this.arrayItems.size() > 0) {
             if (this.map != null && this.map.size() > 0) {
-                throw new RuntimeException("error pathNode");
+                throw new PathNodeError("error pathNode");
             }
         }
     }

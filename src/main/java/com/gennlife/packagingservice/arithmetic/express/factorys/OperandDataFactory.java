@@ -1,12 +1,9 @@
 package com.gennlife.packagingservice.arithmetic.express.factorys;
 
 import com.gennlife.packagingservice.arithmetic.express.ConditionCheck;
-import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractOperandDatasWrapper;
 import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractStaticDataWrapper;
-import com.gennlife.packagingservice.arithmetic.express.enitity.DirectOperandDatasInterface;
-import com.gennlife.packagingservice.arithmetic.express.enitity.MapOperandDatas;
-import com.gennlife.packagingservice.arithmetic.express.enitity.PathNode;
-import com.gennlife.packagingservice.arithmetic.express.enitity.StaticValueOperandDatas;
+import com.gennlife.packagingservice.arithmetic.express.enitity.*;
+import com.gennlife.packagingservice.arithmetic.express.interfaces.OperandDatasForEachCheckInterface;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
 import com.google.gson.JsonObject;
@@ -20,25 +17,20 @@ public class OperandDataFactory {
     public static final String UNARY_KEY = "unaryType";
     public static final String DIRECT_TYPE = "direct";
     public static final String STATIC_TYPE = "static";
-    public static final String MAP_STATIC_TYPE = "mapStatic";
+    public static final String DYADIC_MAP_STATIC_TYPE = "dyadicMapStatic";
+    public static final String UNARY_MAP_STATIC_TYPE = "unaryMapStatic";
+    public static final String DYADIC_MAP_NAME_KEY = "dyadic_table";
+    public static final String DYADIC_REF_ID_KEY = "dyadic_id";
+    public static final String STATIC_UNARY_MAP_NAME_KEY = "unary_table";
+    public static final String STATIC_UNARY_REF_ID_KEY = "unary_id";
 
-    public static AbstractOperandDatasWrapper getUnary(JsonObject config, PathNode contextNode, ConditionCheck conditionCheck) {
+    public static OperandDatasForEachCheckInterface getUnary(JsonObject config, PathNode contextNode, ConditionCheck conditionCheck) {
         String type = JsonAttrUtil.getStringValue(UNARY_KEY, config);
         if (StringUtil.isEmptyStr(type) || type.equalsIgnoreCase(DIRECT_TYPE)) {
-            return new DirectOperandDatasInterface(config, contextNode, conditionCheck);
+            return new DirectOperandDatas(config, contextNode, conditionCheck);
         }
-        return null;
-    }
-
-    //二元运算数据
-    public static AbstractOperandDatasWrapper getDyadic(JsonObject config, PathNode contextNode, ConditionCheck conditionCheck) {
-        String type = JsonAttrUtil.getStringValue(DYADIC_KEY, config);
-        return getAbstractOperandDatasWrapperByType(config, contextNode, conditionCheck, type);
-    }
-
-    private static AbstractOperandDatasWrapper getAbstractOperandDatasWrapperByType(JsonObject config, PathNode contextNode, ConditionCheck conditionCheck, String type) {
-        if (StringUtil.isEmptyStr(type) || type.equalsIgnoreCase(STATIC_TYPE)) {
-            return new StaticValueOperandDatas(config, contextNode, conditionCheck);
+        if (type.equalsIgnoreCase(UNARY_MAP_STATIC_TYPE)) {
+            return new MapStaticUnaryOperandDatas(config, contextNode, conditionCheck);
         }
         return null;
     }
@@ -48,9 +40,8 @@ public class OperandDataFactory {
         if (StringUtil.isEmptyStr(type) || type.equalsIgnoreCase(STATIC_TYPE)) {
             return new StaticValueOperandDatas(config, contextNode, conditionCheck);
         }
-        if(type.equalsIgnoreCase(MAP_STATIC_TYPE))
-        {
-            return new MapOperandDatas(config, contextNode, conditionCheck);
+        if (type.equalsIgnoreCase(DYADIC_MAP_STATIC_TYPE)) {
+            return new TableStaticDataWrapper(DYADIC_MAP_NAME_KEY, DYADIC_REF_ID_KEY, config, contextNode, conditionCheck);
         }
         return null;
     }

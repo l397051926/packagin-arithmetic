@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 /**
  * Created by Chenjinfeng on 2017/10/18.
  */
-public abstract class AbstractOperandDatasWrapper {
+public abstract class AbstractOperandDatasWrapper  {
     protected JsonObject config;
     protected PathNode contextNode;
     protected ConditionCheck conditionCheck;
