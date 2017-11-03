@@ -1,12 +1,17 @@
 package com.gennlife.packagingservice.arithmetic.utils;
 
+import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractPath;
 import com.gennlife.packagingservice.arithmetic.express.enitity.FindIndexModel;
 import com.gennlife.packagingservice.arithmetic.express.enitity.NumberResultEntity;
+import com.gennlife.packagingservice.arithmetic.express.enitity.PathItem;
+import com.gennlife.packagingservice.arithmetic.express.enitity.PathNode;
 import com.gennlife.packagingservice.arithmetic.express.enums.ArrayOpEnum;
 import com.gennlife.packagingservice.arithmetic.express.enums.NumberOpEnum;
 import com.gennlife.packagingservice.arithmetic.express.format.NumberFormatArrayItem;
+import com.gennlife.packagingservice.arithmetic.express.format.StringDateFormatArrayItem;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.FormatArrayItem;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,17 +23,20 @@ import java.util.*;
 public class ObtainUtils {
     public static final Logger logger = LoggerFactory.getLogger(ObtainUtils.class);
 
-    public static List<FindIndexModel<JsonElement>> obtainTarget(LinkedList<FindIndexModel<JsonElement>> list, ArrayOpEnum type, Integer... index) {
+    public static List<FindIndexModel<JsonElement>> obtainList(List<FindIndexModel<JsonElement>> list, ArrayOpEnum type, Integer... index) {
         if (list == null || list.size() == 0) return list;
         if (type == ArrayOpEnum.ALL)
             return list;
         LinkedList<FindIndexModel<JsonElement>> result = new LinkedList<>();
         if (type == ArrayOpEnum.LAST) {
-            result.add(list.getLast());
+            if (list instanceof LinkedList) {
+                result.add(((LinkedList<FindIndexModel<JsonElement>>) list).getLast());
+            } else
+                result.add(list.get(list.size() - 1));
             return result;
         }
         if (type == ArrayOpEnum.FIRST) {
-            result.add(list.getFirst());
+            result.add(list.get(0));
             return result;
         }
         LinkedList<Integer> integers = new LinkedList<>();
@@ -222,4 +230,80 @@ public class ObtainUtils {
         return NumberFormatArrayItem.INSTANSE.format(item);
     }
 
+    private static final Comparator<LinkedList<PathItem>> COMPARATOR_PATHITEM = new Comparator<LinkedList<PathItem>>() {
+        @Override
+        public int compare(LinkedList<PathItem> o1, LinkedList<PathItem> o2) {
+            return AbstractPath.getPath(o1).compareTo(AbstractPath.getPath(o2));
+        }
+    };
+
+    public static List<FindIndexModel<JsonElement>> getSortResultByAscDate(JsonObject patient, PathNode find, String sortKey, String countPath) {
+        LinkedList<LinkedList<PathItem>> emptyPathItems = new LinkedList<>();
+        LinkedList<LinkedList<PathItem>> pathItems = PathNode.getPathItem(find, sortKey);
+        boolean isInTheSameGroup = isInTheSameGroup(sortKey, countPath);
+        List<FindIndexModel<JsonElement>> sortList = new LinkedList<>();
+        List<FindIndexModel<JsonElement>> resultList = new LinkedList<>();
+        for (LinkedList<PathItem> pathitem : pathItems) {
+            LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(pathitem, sortKey), patient);
+            if (tmp == null || tmp.size() == 0) {
+                emptyPathItems.add(pathitem);
+            } else
+                sortList.addAll(tmp);
+        }
+        sort(sortList, true, StringDateFormatArrayItem.INSTACE);
+
+        if (isInTheSameGroup) {
+            for (FindIndexModel<JsonElement> sortItem : sortList) {
+                LinkedList<PathItem> findItem = sortItem.getPathItem();
+                LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(findItem, countPath), patient);
+                resultList.addAll(tmp);
+            }
+            for (LinkedList<PathItem> pathitem : pathItems) {
+                LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(pathitem, countPath), patient);
+                if (tmp != null) resultList.addAll(tmp);
+            }
+            return resultList;
+        }
+        TreeSet<LinkedList<PathItem>> countPathItemSet = new TreeSet<>(COMPARATOR_PATHITEM);
+        countPathItemSet.addAll(PathNode.getPathItem(find, countPath));
+        // add sort value
+        for (FindIndexModel<JsonElement> sortItem : sortList) {
+            LinkedList<PathItem> findItem = sortItem.getPathItem();
+            LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(findItem, countPath), patient);
+            if (tmp != null) {
+                for (FindIndexModel<JsonElement> tmpJson : tmp) {
+                    if (countPathItemSet.contains(tmpJson.getPathItem())) {
+                        countPathItemSet.remove(tmpJson.getPathItem());
+                        if (!hasContainPathItem(resultList, tmpJson)) {
+                            resultList.add(tmpJson);
+                        }
+                    }
+                }
+            }
+        }
+        //add empty list
+        for (LinkedList<PathItem> emptyItem : countPathItemSet) {
+            LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(emptyItem, countPath), patient);
+            if (tmp != null) resultList.addAll(tmp);
+        }
+        return resultList;
+    }
+
+    public static boolean isInTheSameGroup(String sortKey, String countPath) {
+        boolean isInTheSameGroup = false;
+        try {
+            isInTheSameGroup = sortKey.substring(0, sortKey.lastIndexOf('.')).equals(countPath.substring(0, countPath.lastIndexOf('.')));
+        } catch (Exception e) {
+            isInTheSameGroup = false;
+        }
+        return isInTheSameGroup;
+    }
+
+    public static boolean hasContainPathItem(List<FindIndexModel<JsonElement>> list, FindIndexModel<JsonElement> item) {
+        if (list == null || list.isEmpty()) return false;
+        for (FindIndexModel<JsonElement> listItem : list) {
+            if (COMPARATOR_PATHITEM.compare(listItem.getPathItem(), item.getPathItem()) == 0) return true;
+        }
+        return false;
+    }
 }

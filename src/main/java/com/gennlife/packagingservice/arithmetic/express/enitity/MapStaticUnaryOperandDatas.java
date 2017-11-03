@@ -5,8 +5,8 @@ import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractDirect
 import com.gennlife.packagingservice.arithmetic.express.interfaces.OperandDatasForEachCheckInterface;
 import com.google.gson.JsonObject;
 
-import static com.gennlife.packagingservice.arithmetic.express.factorys.OperandDataFactory.STATIC_UNARY_MAP_NAME_KEY;
-import static com.gennlife.packagingservice.arithmetic.express.factorys.OperandDataFactory.STATIC_UNARY_REF_ID_KEY;
+import static com.gennlife.packagingservice.arithmetic.express.factorys.OperandDataFactory.UNARY_MAP_NAME_KEY;
+import static com.gennlife.packagingservice.arithmetic.express.factorys.OperandDataFactory.UNARY_REF_ID_KEY;
 
 /**
  * Created by Chenjinfeng on 2017/10/27.
@@ -16,7 +16,7 @@ public class MapStaticUnaryOperandDatas extends TableStaticDataWrapper implement
     private PathNode findPathNode;
 
     public MapStaticUnaryOperandDatas(JsonObject config, PathNode contextNode, ConditionCheck conditionCheck) {
-        super(STATIC_UNARY_MAP_NAME_KEY, STATIC_UNARY_REF_ID_KEY, config, contextNode, conditionCheck);
+        super(UNARY_MAP_NAME_KEY, UNARY_REF_ID_KEY, config, contextNode, conditionCheck);
     }
 
     @Override

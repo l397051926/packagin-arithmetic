@@ -27,4 +27,9 @@ public class MapSourceDataWrapper implements SourceDataWrapperInterface<Map<Stri
         return data.get(id);
     }
 
+    public boolean hasData(String id) {
+        if (data == null) return false;
+        return data.containsKey(id);
+    }
+
 }

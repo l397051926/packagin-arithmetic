@@ -6,6 +6,7 @@ import com.gennlife.packagingservice.arithmetic.express.enitity.PathNode;
 import com.gennlife.packagingservice.arithmetic.express.exceptions.PathNodeError;
 import com.gennlife.packagingservice.arithmetic.express.logic.AndLogicExpress;
 import com.gennlife.packagingservice.arithmetic.express.logic.OrLogicExpress;
+import com.gennlife.packagingservice.arithmetic.pretreatment.enums.LogicExpressEnum;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * Created by Chenjinfeng on 2017/10/16.
  */
 public abstract class AbstractLogicExpress implements ExpressInterface {
-    private static final Logger logger= LoggerFactory.getLogger(AbstractLogicExpress.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractLogicExpress.class);
     private JsonArray detail;
     private String operator;
     protected PathNode tmpNode;
@@ -27,8 +28,8 @@ public abstract class AbstractLogicExpress implements ExpressInterface {
     protected boolean findflag;
     private String needPath;
 
-    public AbstractLogicExpress(ConditionCheck conditionCheck, JsonArray detail, String operator, PathNode globalPathNode,String path) {
-        this.needPath=path;
+    public AbstractLogicExpress(ConditionCheck conditionCheck, JsonArray detail, String operator, PathNode globalPathNode, String path) {
+        this.needPath = path;
         this.detail = detail;
         this.operator = operator;
         this.globalPathNode = globalPathNode;
@@ -56,7 +57,7 @@ public abstract class AbstractLogicExpress implements ExpressInterface {
             }
             String detailoperator = JsonAttrUtil.getStringValue(OPERATOR_KEY, detailItemJson);
             JsonArray detail = JsonAttrUtil.getJsonArrayValue(DETAILS_ARRAY_KEY, detailItemJson);
-            AbstractLogicExpress logicexpress = buildLogicExpress(this.conditionCheck, detail, detailoperator, getPathNodeForChild(),detailItemJson);
+            AbstractLogicExpress logicexpress = buildLogicExpress(this.conditionCheck, detail, detailoperator, getPathNodeForChild(), detailItemJson);
             if (logicexpress != null) {
                 express = logicexpress.parse();
             } else {
@@ -80,20 +81,34 @@ public abstract class AbstractLogicExpress implements ExpressInterface {
 
     public abstract boolean isContinue(ExpressInterface express);
 
-    public static AbstractLogicExpress buildLogicExpress(ConditionCheck conditionCheck, JsonArray detail, String operator, PathNode globalPathNode,JsonObject config) {
+    public static AbstractLogicExpress buildLogicExpress(ConditionCheck conditionCheck, JsonArray detail, String operator, PathNode globalPathNode, JsonObject config) {
         if (operator != null) {
-            String path=JsonAttrUtil.getStringValue(NEED_PATH_KEY,config);
-            if (operator.equalsIgnoreCase("or")) {
+            String path = JsonAttrUtil.getStringValue(NEED_PATH_KEY, config);
+
+            LogicExpressEnum logicExpressEnum = checkLogicExpress(operator);
+            if (logicExpressEnum == null) return null;
+            if (logicExpressEnum == LogicExpressEnum.OR) {
                 return new OrLogicExpress(conditionCheck, detail, operator, globalPathNode, path);
             }
-            if (operator.equalsIgnoreCase("and")) {
+            if (logicExpressEnum == LogicExpressEnum.AND) {
                 return new AndLogicExpress(conditionCheck, detail, operator, globalPathNode, path);
-            }
-            if (operator.equalsIgnoreCase("not")) {
-                throw new UnsupportedOperationException("unsupported for not ");
             }
         }
         return null;
+    }
+
+    public static LogicExpressEnum checkLogicExpress(String op) {
+        LogicExpressEnum logicExpressEnum;
+        op = op.toUpperCase();
+        try {
+            logicExpressEnum = LogicExpressEnum.valueOf(op);
+        } catch (Exception e) {
+            return null;
+        }
+        if (logicExpressEnum == LogicExpressEnum.NOT) {
+            throw new UnsupportedOperationException("unsupported for not ");
+        }
+        return logicExpressEnum;
     }
 
     @Override

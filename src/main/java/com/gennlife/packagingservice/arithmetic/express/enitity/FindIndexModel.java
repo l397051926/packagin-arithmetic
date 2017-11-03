@@ -27,6 +27,7 @@ public class FindIndexModel<T> {
     private int index;
     private String key;
     private T value; //值
+    private transient LinkedList<PathItem> pathList;
 
     public FindIndexModel() {
         this.index = -1;
@@ -51,7 +52,7 @@ public class FindIndexModel<T> {
 
     public static LinkedList<FindIndexModel<JsonElement>> getAllValue(String detailkey, List<FindIndexModel<JsonElement>> findIndexModels, LinkedList<FindIndexModel<JsonElement>> init) {
         if (findIndexModels == null || findIndexModels.size() == 0) return null;
-        String key=removeUncareTag(detailkey);
+        String key = removeUncareTag(detailkey);
         String[] keys = null;
         if (init == null) init = new LinkedList<>();
         for (FindIndexModel<JsonElement> findIndexModelItem : findIndexModels) {
@@ -239,12 +240,14 @@ public class FindIndexModel<T> {
     }
 
     public LinkedList<PathItem> getPathItem() {
-        LinkedList<PathItem> pathList = new LinkedList<>();
-        FindIndexModel tmp = this;
-        while (tmp != null) {
-            if (StringUtil.isEmptyStr(tmp.getKey())) break;
-            pathList.push(new PathItem(tmp.getKey(), tmp.getIndex()));
-            tmp = tmp.getP();
+        if (pathList == null) {
+            pathList = new LinkedList<>();
+            FindIndexModel tmp = this;
+            while (tmp != null) {
+                if (StringUtil.isEmptyStr(tmp.getKey())) break;
+                pathList.push(new PathItem(tmp.getKey(), tmp.getIndex()));
+                tmp = tmp.getP();
+            }
         }
         return pathList;
     }

@@ -1,31 +1,151 @@
 {
-  "map": {
-    "visits": {
-      "arrayItems": {
-        "0": {
-          "map": {
-            "inspection_reports": {
-              "arrayItems": {
-                "1": {
-                  "map": {
-                    "SPECIMEN_NAME": {},
-                    "sub_inspection": {
-                      "arrayItems": {
-                        "19": {
-                          "map": {
-                            "INSPECTION_SN": {},
-                            "SUB_INSPECTION_EN": {}
-                          }
-                        }
-                      }
-                    }
+  "createTime": 1509340797000,
+  "operatorNum": "对应operator的次序",
+  "activeType": 2,
+  "updateTime": 1509340797000,
+  "attr": [
+    {
+      "operatorNum": "对应operator的次序",
+      "indexResultValue": "",
+      "functionParam": "函数参数",
+      "operator": "次序",
+      "function": "函数名称",
+      "id": "9e33ac45f72242ec96bf3d08023712ed",
+      "indexType": "指标类型",
+      "indexTyoe": "指标类型",
+      "activeIndexId": "6c6cb2a099be436f83bda3f6416db5a8",
+      "activeResultDesc": "就诊",
+      "activeResult": "visits",
+      "indexColumnDesc": "质保字段描述",
+      "searchScope": "搜索范围",
+      "indexColumn": "指标字段",
+      "condtion": {
+        "operator": "and",
+        "needPath": "visits",
+        "detail": [
+          {
+            "value": "颈动脉狭窄",
+            "needPath": "",
+            "operator": "contain",
+            "key": "visits.diagnose.DIAGNOSIS"
+          },
+          {
+            "value": "颈动脉狭窄",
+            "needPath": "",
+            "operator": "contain",
+            "key": "visits.diagnose.DIAGNOSIS"
+          },
+          {
+            "value": "颈动脉狭窄",
+            "needPath": "",
+            "operator": "contain",
+            "key": "visits.diagnose.DIAGNOSIS"
+          },
+          {
+            "operator": "and",
+            "needPath": "visits",
+            "detail": [
+              {
+                "value": "颈动脉狭窄",
+                "needPath": "",
+                "operator": "contain",
+                "key": "visits.diagnose.DIAGNOSIS"
+              },
+              {
+                "value": "颈动脉狭窄",
+                "needPath": "",
+                "operator": "contain",
+                "key": "visits.diagnose.DIAGNOSIS"
+              },
+              {
+                "operator": "and",
+                "needPath": "visits",
+                "detail": [
+                  {
+                    "value": "颈动脉狭窄",
+                    "needPath": "",
+                    "operator": "contain",
+                    "key": "visits.diagnose.DIAGNOSIS"
+                  },
+                  {
+                    "value": "颈动脉狭窄",
+                    "needPath": "",
+                    "operator": "contain",
+                    "key": "visits.diagnose.DIAGNOSIS"
+                  },
+                  {
+                    "value": "颈动脉狭窄",
+                    "needPath": "",
+                    "operator": "contain",
+                    "key": "visits.diagnose.DIAGNOSIS"
                   }
-                }
+                ]
+              },
+              {
+                "value": "颈动脉狭窄",
+                "needPath": "",
+                "operator": "contain",
+                "key": "visits.diagnose.DIAGNOSIS"
               }
-            }
+            ]
+          },
+          {
+            "value": "颈动脉狭窄",
+            "needPath": "",
+            "operator": "contain",
+            "key": "visits.diagnose.DIAGNOSIS"
+          },
+          {
+            "value": "颈动脉狭窄",
+            "needPath": "",
+            "operator": "contain",
+            "key": "visits.diagnose.DIAGNOSIS"
+          },
+          {
+            "value": "颈动脉狭窄",
+            "needPath": "",
+            "operator": "contain",
+            "key": "visits.diagnose.DIAGNOSIS"
+          },
+          {
+            "operator": "and",
+            "needPath": "visits",
+            "detail": [
+              {
+                "value": "颈动脉狭窄",
+                "needPath": "",
+                "operator": "contain",
+                "key": "visits.diagnose.DIAGNOSIS"
+              },
+              {
+                "value": "颈动脉狭窄",
+                "needPath": "",
+                "operator": "contain",
+                "key": "visits.diagnose.DIAGNOSIS"
+              },
+              {
+                "value": "颈动脉狭窄",
+                "needPath": "",
+                "operator": "contain",
+                "key": "visits.diagnose.DIAGNOSIS"
+              }
+            ]
           }
-        }
+        ]
       }
     }
-  }
+  ],
+  "projectId": "18912313132123",
+  "functionParam": "函数参数",
+  "operator": "次序",
+  "function": "first",
+  "unique_id": "6c6cb2a099be436f83bda3f6416db5a8",
+  "id": "6c6cb2a099be436f83bda3f6416db5a8",
+  "resultsql": "update table tableName set status=PRODUCESTATUA,message=MESSAGE,complateTime=COMPLATETIME,caseTotal=CASETOTAL,marketApply=MARKETAPPLY,searchResult=SEARCHRESULT,containApply=CONTAINAPPLY where active_index_id=6c6cb2a099be436f83bda3f6416db5a8",
+  "name": "活动",
+  "activeResult": "visits",
+  "isTmp": false,
+  "projectName": "测试项目",
+  "sortKey": "visits.visit_info.ADMISSION_DATE",
+  "idList": []
 }

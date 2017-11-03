@@ -2,7 +2,6 @@ package com.gennlife.packagingservice.arithmetic.express.abstracts;
 
 import com.gennlife.packagingservice.arithmetic.express.ConditionCheck;
 import com.gennlife.packagingservice.arithmetic.express.enitity.PathNode;
-import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
@@ -24,9 +23,9 @@ public class AbstractStaticDataWrapper extends AbstractOperandDatasWrapper {
     }
 
     public void setValue(JsonElement value) {
-        if (JsonAttrUtil.isEmptyJsonElement(value)) {
+       /* if (JsonAttrUtil.isEmptyJsonElement(value)) {
             logger.warn("value is empty in getStaticValue");
-        }
+        }*/
         this.value = value;
     }
 }

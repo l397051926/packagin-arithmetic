@@ -64,9 +64,13 @@ public class CompareAnalise<T> {
     }
 
     public void parse(String target) {
-        String[] items = target.replace(" ", "").split(";");
-        if (items.length < 2) throw new CompareAnaliseError("length must >=2 " + target);
+        if (StringUtil.isEmptyStr(target))
+            throw new CompareAnaliseError("target is null");
+        String[] items = target.trim().split(";");
+        int i = 0;
         for (String item : items) {
+            if (StringUtil.isEmptyStr(item)) continue;
+            i++;
             if (item.equals("小于") || item.equals("<")) {
                 needLess = true;
             } else if (item.equals("大于") || item.equals(">")) {
@@ -79,10 +83,15 @@ public class CompareAnalise<T> {
                 try {
                     data = format.format(item);
                 } catch (Exception e) {
+                    data = null;
                     logger.error("", e);
                     setHasError(true);
                     break;
                 }
+        }
+        if (i < 1) throw new CompareAnaliseError("length must >=2 " + target);
+        if (data == null && !isHasError()) {
+            setHasError(true);
         }
     }
 
@@ -114,6 +123,7 @@ public class CompareAnalise<T> {
     public static CompareAnalise getFormatDateData(String str) {
         return getFormatData(str, FORMATFORTIME);
     }
+
     public static CompareAnalise getFormatNumberData(String str) {
         return getFormatData(str, FORMATFORNUMBER);
     }

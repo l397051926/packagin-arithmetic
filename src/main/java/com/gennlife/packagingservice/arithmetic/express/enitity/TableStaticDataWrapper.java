@@ -3,7 +3,6 @@ package com.gennlife.packagingservice.arithmetic.express.enitity;
 import com.gennlife.packagingservice.arithmetic.express.ConditionCheck;
 import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractStaticDataWrapper;
 import com.gennlife.packagingservice.arithmetic.express.exceptions.ConfigError;
-import com.gennlife.packagingservice.arithmetic.express.exceptions.UnFindIdError;
 import com.gennlife.packagingservice.arithmetic.express.exceptions.UnMatchInstanceError;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.SourceDataWrapperInterface;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
@@ -35,8 +34,8 @@ public class TableStaticDataWrapper extends AbstractStaticDataWrapper {
         if (data instanceof MapSourceDataWrapper) {
             MapSourceDataWrapper datasource = (MapSourceDataWrapper) data;
             JsonElement value = datasource.getItem(id);
-            if (value == null)
-                throw new UnFindIdError("can't find " + id + " in table " + table);
+           /* if (value == null)
+                throw new UnFindIdError("can't find " + id + " in table " + table);*/
             setValue(value);
         } else {
             throw new UnMatchInstanceError("need instance  MapSourceDataWrapper");

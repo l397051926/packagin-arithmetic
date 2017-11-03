@@ -5,6 +5,7 @@ import com.gennlife.packagingservice.arithmetic.express.enitity.CompareAnalise;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,5 +66,20 @@ public class SimpleNumberOperator extends DyadicOperationRightIsStaticValue {
     @Override
     public boolean allEmptyList() {
         return false;
+    }
+    @Override
+    protected boolean needMerge() {
+        return true;
+    }
+
+    @Override
+    protected JsonElement merge(JsonElement value, JsonElement staticValue) {
+        try {
+            return new JsonPrimitive(value.getAsString() + ";" + staticValue.getAsString());
+        } catch (Exception e) {
+            logger.error("config error "+value+" "+staticValue);
+            setHasError(true);
+        }
+        return null;
     }
 }

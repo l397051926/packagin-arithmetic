@@ -180,9 +180,8 @@ public class JsonAttrUtil {
     }
 
     public static JsonObject toJsonObject(Object obj) {
-        if (obj != null && obj instanceof JsonObject) return (JsonObject) obj;
         try {
-            return (JsonObject) toJsonTree(obj);
+            return toJsonElement(obj).getAsJsonObject();
         } catch (Exception e) {
             return null;
         }
@@ -203,6 +202,14 @@ public class JsonAttrUtil {
 
     }
 
+    public static JsonArray toJsonArray(Object str) {
+        try {
+            return toJsonElement(str).getAsJsonArray();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static boolean has_key(JsonObject json, String key) {
         if (json == null) return false;
         if (!json.has(key)) return false;
@@ -215,6 +222,7 @@ public class JsonAttrUtil {
 
 
     public static String toJsonStr(Object obj) {
+        if (obj instanceof String) return (String) obj;
         return gson.toJson(obj);
     }
 
@@ -330,6 +338,7 @@ public class JsonAttrUtil {
      * 数组取第一项
      */
     public static JsonObject getJsonObjectValue(String key, JsonObject tmp) {
+        if (StringUtil.isEmptyStr(key)) return tmp;
         String[] keys = key.split("\\.");
         Object obj = getObjValue(keys, tmp);
         if (obj instanceof JsonArray) {
@@ -511,6 +520,20 @@ public class JsonAttrUtil {
         return jsonParser;
     }
 
+    public static JsonElement toJsonElement(Object obj) {
+        if (obj == null) return null;
+        if (obj instanceof InputStream) toJsonElement((InputStream) obj);
+        if (obj instanceof JsonElement) return (JsonElement) obj;
+        if (obj instanceof String) {
+            try {
+                return jsonParser.parse((String) obj);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return toJsonTree(obj);
+    }
+
     public static JsonElement toJsonElement(InputStream content) {
         InputStreamReader inputStream = null;
         JsonElement result = null;
@@ -541,13 +564,6 @@ public class JsonAttrUtil {
         return result;
     }
 
-    public static JsonElement toJsonElement(String s) {
-        try {
-            return jsonParser.parse(s);
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
     public static String readPathForStrValue(String path, JsonObject json) {
         JsonElement value = readPath(path, json);
@@ -705,7 +721,6 @@ public class JsonAttrUtil {
             resultlist = swap;
             tmplist.clear();
         }
-
         return resultlist;
     }
 
@@ -914,6 +929,7 @@ public class JsonAttrUtil {
         if (isEqual) return path;
         return null;
     }
+
     public static <T1 extends AbstractPath, T2 extends AbstractPath> LinkedList<LinkedList<T2>> mergePath(LinkedList<T1> base, LinkedList<LinkedList<T2>> paths) {
         LinkedList<LinkedList<T2>> result = new LinkedList<>();
         for (LinkedList<T2> path : paths) {
@@ -922,6 +938,14 @@ public class JsonAttrUtil {
         }
         if (result.size() == 0) return null;
         return result;
+    }
+
+    public static Object getJsonPrimeValue(JsonPrimitive primitive) {
+        if (primitive.isBoolean()) return primitive.getAsBoolean();
+        else if (primitive.isNumber()) {
+            return primitive.getAsNumber();
+        } else
+            return primitive.getAsString();
     }
 
 }

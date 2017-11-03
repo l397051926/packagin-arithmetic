@@ -5,6 +5,7 @@ import com.gennlife.packagingservice.arithmetic.express.interfaces.ConditionOper
 import com.gennlife.packagingservice.arithmetic.express.interfaces.InstructionOperatorInterface;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.SupportNotOperatorInterface;
 import com.gennlife.packagingservice.arithmetic.express.operator.retrieve.*;
+import com.gennlife.packagingservice.arithmetic.pretreatment.enums.InstructionOperatorEnum;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +30,24 @@ public class ConditionOperatorFactory {
         return null;
     }
 
+    public static InstructionOperatorEnum check(String key) {
+        if (StringUtil.isEmptyStr(key)) return InstructionOperatorEnum.ISNULL;
+        if (key.startsWith("!")) key = key.substring(1);
+        InstructionOperatorEnum result = null;
+        key = key.toUpperCase();
+        try {
+            result = InstructionOperatorEnum.valueOf(key);
+        } catch (Exception e) {
+            return null;
+        }
+        return result;
+    }
+
     public static InstructionOperatorInterface getInstructionOperator(String key) {
+        InstructionOperatorEnum matchEnum = check(key);
         InstructionOperatorInterface result = null;
         boolean isNot = false;
-        if (StringUtil.isEmptyStr(key)) {
+        if (matchEnum==InstructionOperatorEnum.ISNULL) {
             //非空
             NullCompareOperator op = new NullCompareOperator();
             op.setNot(true);
@@ -42,20 +57,20 @@ public class ConditionOperatorFactory {
             isNot = true;
             key = key.substring(1);
         }
-        if (key.equalsIgnoreCase("equal")) result = new ConditionEualsIgnoreCase();
-        else if (key.equalsIgnoreCase("contain")) result = new ConditionContainIgnoreCase();
-        else if (key.equalsIgnoreCase("regex")) result = new ConditionRegex();
-        else if (key.equalsIgnoreCase("isnull")) result = new NullCompareOperator();
+        if (matchEnum==InstructionOperatorEnum.EQUAL) result = new ConditionEualsIgnoreCase();
+        else if (matchEnum==InstructionOperatorEnum.CONTAIN) result = new ConditionContainIgnoreCase();
+        else if (matchEnum==InstructionOperatorEnum.REGEX) result = new ConditionRegex();
+        else if (matchEnum==InstructionOperatorEnum.ISNULL) result = new NullCompareOperator();
             //包含全部
-        else if (key.equalsIgnoreCase("containall")) {
+        else if (matchEnum==InstructionOperatorEnum.CONTAINALL) {
             ConditionContainIgnoreCase op = new ConditionContainIgnoreCase();
             op.setMatchAll(true);
             result = op;
-        } else if (key.equalsIgnoreCase("dateHmsCompare")) {
+        } else if (matchEnum==InstructionOperatorEnum.DATEHMSCOMPARE) {
             result = new DateHmsCompareOperator();
-        } else if (key.equalsIgnoreCase("simpleNumber")) {
+        } else if (matchEnum==InstructionOperatorEnum.SIMPLENUMBER) {
             result = new SimpleNumberOperator();
-        } else if (key.equalsIgnoreCase("simpleDate")) {
+        } else if (matchEnum==InstructionOperatorEnum.SIMPLEDATE) {
             result = new SimpleDateOperator();
         }
         if (result != null && isNot) {

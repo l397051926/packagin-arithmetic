@@ -18,8 +18,23 @@ import java.util.*;
  */
 public class PathNode {
     private transient LinkedList<PathItem> pPath;
-    private Map<String, PathNode> map;
-    private Map<Integer, PathNode> arrayItems;
+    private LinkedHashMap<String, PathNode> map;
+    private LinkedHashMap<Integer, PathNode> arrayItems;
+
+    public static List<FindIndexModel<JsonElement>> getFindIndexModels(JsonObject patient, PathNode find, String countPath) {
+        LinkedList<LinkedList<PathItem>> pathItems = getPathItem(find, countPath);
+        List<FindIndexModel<JsonElement>> resultList = null;
+        for (LinkedList<PathItem> pathitem : pathItems) {
+            LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(pathitem, countPath), patient);
+            if (resultList == null) resultList = tmp;
+            else {
+                if (tmp == null) continue;
+                resultList.addAll(tmp);
+            }
+        }
+        return resultList;
+    }
+
     public LinkedList<PathItem> getpPath() {
         return pPath;
     }
@@ -35,7 +50,7 @@ public class PathNode {
         this.arrayItems = mergePathNodeMapByAdd(node.arrayItems, this.arrayItems);
     }
 
-    private static <T> Map<T, PathNode> mergePathNodeMapByAdd(Map<T, PathNode> from, Map<T, PathNode> to) {
+    private static <T> LinkedHashMap<T, PathNode> mergePathNodeMapByAdd(LinkedHashMap<T, PathNode> from, LinkedHashMap<T, PathNode> to) {
         if (to == null) return from;
         for (Map.Entry<T, PathNode> item : from.entrySet()) {
             if (!to.containsKey(item.getKey()))
@@ -78,7 +93,7 @@ public class PathNode {
         return map.get(key);
     }
 
-    public void setArrayItems(Map<Integer, PathNode> arrayItems) {
+    public void setArrayItems(LinkedHashMap<Integer, PathNode> arrayItems) {
         this.arrayItems = arrayItems;
     }
 
@@ -170,7 +185,7 @@ public class PathNode {
     }
 
     public void addJsonNode(String key, PathNode pathNode) {
-        if (map == null) map = new HashMap<>();
+        if (map == null) map = new LinkedHashMap<>();
         map.put(key, pathNode);
     }
 
@@ -224,7 +239,7 @@ public class PathNode {
     }
 
     private void addArrayValue(int index, PathNode pathNode) {
-        if (arrayItems == null) arrayItems = new HashMap<>();
+        if (arrayItems == null) arrayItems = new LinkedHashMap<>();
         arrayItems.put(index, pathNode);
     }
 
@@ -290,21 +305,21 @@ public class PathNode {
         return map;
     }
 
-    public void setMap(Map<String, PathNode> map) {
+    public void setMap(LinkedHashMap<String, PathNode> map) {
         this.map = map;
     }
 
     public PathNode deepCopy() {
         PathNode copy = new PathNode();
-        Map<String, PathNode> map = null;
-        Map<Integer, PathNode> arrayItems = null;
+        LinkedHashMap<String, PathNode> map = null;
+        LinkedHashMap<Integer, PathNode> arrayItems = null;
         if (this.hasJsonObj()) {
-            map = new HashMap<>();
+            map = new LinkedHashMap<>();
             addDeepCopyIntoMap(map, this.getMap());
             copy.setMap(map);
         }
         if (this.hasArrayValue()) {
-            arrayItems = new HashMap<>();
+            arrayItems = new LinkedHashMap<>();
             addDeepCopyIntoMap(arrayItems, this.getArrayItems());
             copy.setArrayItems(arrayItems);
         }

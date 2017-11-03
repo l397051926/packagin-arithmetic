@@ -11,13 +11,13 @@ import com.google.gson.JsonObject;
  */
 public class StaticValueOperandDatas extends AbstractStaticDataWrapper {
 
-    private static final String DESCIBEKEY = "staticValue";
-
+    public static final String VALUE_KEY = "staticValue";
+    public static final String VALUE_OLD_KEY="value";
     public StaticValueOperandDatas(JsonObject config, PathNode contextNode, ConditionCheck conditionCheck) {
         super(config, contextNode, conditionCheck);
-        JsonElement value = JsonAttrUtil.getJsonElement("value", config);
+        JsonElement value = JsonAttrUtil.getJsonElement(VALUE_OLD_KEY, config);
         if (JsonAttrUtil.isEmptyJsonElement(value)) {
-            value = JsonAttrUtil.getJsonElement(DESCIBEKEY, config);
+            value = JsonAttrUtil.getJsonElement(VALUE_KEY, config);
         }
         super.setValue(value);
     }

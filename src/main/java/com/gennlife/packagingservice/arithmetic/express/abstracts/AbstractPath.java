@@ -46,6 +46,8 @@ public abstract class AbstractPath {
         int i = 0;
         if (indexs != null) {
             for (AbstractPath index : indexs) {
+                if(froms.length<=i)
+                    break;
                 SplitStrForKeyAndIndex spindex = new SplitStrForKeyAndIndex(froms[i]);
                 if (spindex.isEqual(index)) {
                     String tmp = index.getIndex() >= 0 ? spindex.getKey() + "[" + index.getIndex() + "]" : spindex.getKey();

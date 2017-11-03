@@ -35,12 +35,22 @@ public class ConditionCheck {
     private Map<String, SourceDataWrapperInterface> dataMap;
     protected static Logger logger = LoggerFactory.getLogger(ConditionCheck.class);
     public static final String REFKEY = "ref";
+    private boolean init = false;
 
     public ConditionCheck(JsonObject toDoCondition, JsonObject globalcondition) {
         if (toDoCondition != null) this.toDoCondition = JsonAttrUtil.deepCopy(toDoCondition).getAsJsonObject();
         else this.toDoCondition = null;
         this.globalcondition = globalcondition;
-        init();
+        if (toDoCondition == null) {
+            this.condition = null;
+            return ;
+        }
+        if (!toDoCondition.has("condition")) {
+            this.condition = toDoCondition;
+        } else {
+            this.condition = toDoCondition.getAsJsonObject("condition");
+        }
+        initCondition();
     }
 
     public String getLastPath() {
@@ -55,21 +65,8 @@ public class ConditionCheck {
         this.condition = condition;
     }
 
-    private ConditionCheck init() {
-        if (toDoCondition == null) {
-            this.condition = null;
-            return this;
-        }
-        if (!toDoCondition.has("condition")) {
-            this.condition = toDoCondition;
-        } else {
-            this.condition = toDoCondition.getAsJsonObject("condition");
-        }
-        initCondition();
-        return this;
-    }
-
     public void initCondition() {
+        init = true;
         JsonArray addition = null;
         if (condition.has("addition")) addition = condition.getAsJsonArray("addition");
         if (condition.has(REFKEY)) {
@@ -209,6 +206,7 @@ public class ConditionCheck {
 
     public PathNode getPathItemsByPathNode(LinkedList<FindIndexModel<JsonElement>> lists, PathNode pathNode) {
         setOrigindata(lists);
+        if (init == false) initCondition();
         if (pathNode == null) pathNode = new PathNode();
         AbstractLogicExpress logicexpress = AbstractLogicExpress.buildLogicExpress(this, detail, operator, pathNode, condition);
         if (logicexpress == null) throw new ConfigError("error operator " + operator);

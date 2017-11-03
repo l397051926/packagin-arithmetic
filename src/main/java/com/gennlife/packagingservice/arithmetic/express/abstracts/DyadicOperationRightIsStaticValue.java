@@ -2,6 +2,7 @@ package com.gennlife.packagingservice.arithmetic.express.abstracts;
 
 import com.gennlife.packagingservice.arithmetic.express.ConditionCheck;
 import com.gennlife.packagingservice.arithmetic.express.enitity.PathNode;
+import com.gennlife.packagingservice.arithmetic.express.enitity.StaticValueOperandDatas;
 import com.gennlife.packagingservice.arithmetic.express.factorys.OperandDataFactory;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.OperandDatasForEachCheckInterface;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
@@ -27,6 +28,16 @@ public abstract class DyadicOperationRightIsStaticValue extends AbstractDirectOp
             return;
         }
         JsonElement value = staticValue.getValue();
+        if (needMerge()) {
+            if (staticValue instanceof StaticValueOperandDatas) {
+
+            } else {
+                StaticValueOperandDatas otherConfig = new StaticValueOperandDatas(config, nodeContext, conditionCheck);
+                if (!JsonAttrUtil.isEmptyJsonElement(otherConfig.getValue())) {
+                    value = merge(value, otherConfig.getValue());
+                }
+            }
+        }
         if (JsonAttrUtil.isEmptyJsonElement(value)) setTarget("");
         else if (value.isJsonArray()) setTarget(value.getAsJsonArray());
         else if (value.isJsonPrimitive()) setTarget(value.getAsString());
@@ -46,4 +57,11 @@ public abstract class DyadicOperationRightIsStaticValue extends AbstractDirectOp
 
     protected abstract void setTarget(String s);
 
+    protected boolean needMerge() {
+        return false;
+    }
+
+    protected JsonElement merge(JsonElement value, JsonElement staticValue) {
+        throw new UnsupportedOperationException();
+    }
 }
