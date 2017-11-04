@@ -85,6 +85,13 @@ public class PathNode {
         if (StringUtil.isEmptyStr(path)) return this;
         if (path.equalsIgnoreCase(EMPTY_PATH)) return new PathNode();
         LinkedList<LinkedList<PathItem>> list = PathNode.getPathItem(this, path);
+        if (list == null) {
+            LinkedList<SplitStrForKeyAndIndex> baseList = SplitStrForKeyAndIndex.createPaths(path);
+            SplitStrForKeyAndIndex first = baseList.getFirst();
+            if (!this.hasJsonNodeKey(first.getKey())) {
+                return this;
+            }
+        }
         return PathNode.getPathNodeFromPath(list);
     }
 

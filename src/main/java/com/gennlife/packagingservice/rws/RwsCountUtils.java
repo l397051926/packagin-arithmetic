@@ -140,7 +140,7 @@ public class RwsCountUtils {
 
     private static CountValueEntity getEmptyMatch(int activeType) {
         if (isActivity(activeType)) {
-            return new CountValueEntity().setValue(0).setPath(null).setMatch(true);
+            return new CountValueEntity().setValue(0).setPath(null).setMatch(false);
         } else
             return getMatchNa();
     }

@@ -119,6 +119,11 @@ public class HttpRequestUtils {
                     logger.error("" + url, e);
                 }
             }
+            else
+            {
+                String str = EntityUtils.toString(result.getEntity(), "utf-8");
+                logger.error("" + url+" error "+str);
+            }
         } catch (IOException e) {
             logger.error("" + url, e);
         }
@@ -153,6 +158,11 @@ public class HttpRequestUtils {
                 } catch (Exception e) {
                     logger.error("" + url, e);
                 }
+            }
+            else
+            {
+                String str = EntityUtils.toString(result.getEntity(), "utf-8");
+                logger.error("" + url+" error "+str);
             }
         } catch (IOException e) {
             logger.error("" + url, e);
