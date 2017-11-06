@@ -29,6 +29,7 @@ import static com.gennlife.packagingservice.rws.RwsCountUtils.*;
  * Created by Chenjinfeng on 2017/10/28.
  */
 public class RwsConfigTransUtils {
+    public static final String RWS_STATIC_VALUE_KEY = "indexResultValue";
     public static final String RWS_STATIC_MAP_TABLE_NAME = "rws_static_map_table";
     public static final String RIGHT_OP_KEY = "rightCountType";
     public static final String RIGHT_OP_PARAM_KEY = "rightCountParam";
@@ -37,6 +38,7 @@ public class RwsConfigTransUtils {
     public static final String IS_TMP_KEY = "isTmp";
     public static final String UNIQUE_ID_KEY = "unique_id";
     public static final String PROJECT_ID_KEY = "projectId";
+    public static final String RWS_OPERATOR_SIGN = "operatorSign";
 
     public static JsonObject transRwsConditionConfig(JsonArray condition) throws ConfigExcept {
         if (JsonAttrUtil.isEmptyJsonElement(condition)) return null;
@@ -84,21 +86,36 @@ public class RwsConfigTransUtils {
 
     public static void transConfigItemForCondition(JsonObject configJson) throws ConfigExcept {
         JsonArray attr = JsonAttrUtil.getJsonArrayValue(RWS_ATTR_CONDITION_KEY, configJson);
+        String method = JsonAttrUtil.getStringValue(RWS_CONF_METHOD_KEY, configJson);
+        if (isStaticMethod(method)) {
+            for (JsonElement element : attr) {
+                JsonObject attrItem = element.getAsJsonObject();
+                JsonObject first = JsonAttrUtil.getJsonObjectValue("conditions", attrItem);
+                String operator = JsonAttrUtil.getStringValue(RWS_OPERATOR_SIGN, first);
+                if (StringUtil.isEmptyStr(operator)) {
+                    attrItem.remove("conditions");
+                }
+            }
+        }
         Set<String> idList = new TreeSet<>();
         for (JsonElement element : attr) {
             JsonObject attrItem = element.getAsJsonObject();
-            JsonObject conditionJson = transRwsConditionConfig(attrItem.getAsJsonArray("conditions"));
-            idList.addAll(getRefIdList(conditionJson));
-            attrItem.remove("conditions");
-            String id = JsonAttrUtil.getStringValue(RwsConfigTransUtils.UNIQUE_ID_KEY, attrItem);
-            attrItem.add(RwsCountUtils.CONDTION_KEY, conditionJson);
-            if (StringUtil.isEmptyStr(id)) idList.add(id);
+            if (attrItem.has("conditions")) {
+                JsonObject conditionJson = transRwsConditionConfig(attrItem.getAsJsonArray("conditions"));
+                idList.addAll(getRefIdList(conditionJson));
+                attrItem.remove("conditions");
+                String id = JsonAttrUtil.getStringValue(RwsConfigTransUtils.UNIQUE_ID_KEY, attrItem);
+                attrItem.add(RwsCountUtils.CONDTION_KEY, conditionJson);
+                if (StringUtil.isEmptyStr(id)) idList.add(id);
+            } else if (!isStaticMethod(method)) {
+                throw new ConfigExcept("条件配置错误 : 条件组 attr 为空");
+            }
         }
         configJson.add(REF_ID_LIST_KEY, JsonAttrUtil.toJsonTree(idList));
     }
 
     private static void transActiveConfig(JsonObject configItem, JsonObject result) throws ConfigExcept {
-        String operator = JsonAttrUtil.getStringValue("operatorSign", configItem);
+        String operator = JsonAttrUtil.getStringValue(RWS_OPERATOR_SIGN, configItem);
         String needPath = JsonAttrUtil.getStringValue("needPath", configItem);
         JsonArray originDetail = JsonAttrUtil.getJsonArrayValue("detail", configItem);
         LogicExpressEnum logicExpressEnum = AbstractLogicExpress.checkLogicExpress(operator);
@@ -110,25 +127,25 @@ public class RwsConfigTransUtils {
                 try {
                     refEnum = RefEnum.valueOf(ref.toUpperCase());
                 } catch (Exception e) {
-                    throw new ConfigExcept("配置错误 ref " + ref);
+                    throw new ConfigExcept("条件配置错误 ref " + ref);
                 }
                 JsonElement value = JsonAttrUtil.getJsonElement("value", configItem);
                 if (JsonAttrUtil.isEmptyJsonElement(value)) {
-                    throw new ConfigExcept("配置错误  value is null");
+                    throw new ConfigExcept("条件配置错误  value is null");
                 }
                 if (StringUtil.isEmptyStr(operator))
-                    throw new ConfigExcept("配置错误  operator is null");
+                    throw new ConfigExcept("条件配置错误  operator is null");
 
                 String[] ops = operator.split("#");
                 if (ops.length <= 1) {
-                    throw new ConfigExcept("配置错误  operator " + operator + " 最小长度 2");
+                    throw new ConfigExcept("条件配置错误  operator " + operator + " 最小长度 2");
                 }
                 String type = ops[0];
 
                 //复合运算
                 if (type.equalsIgnoreCase("simpleDate") || type.equalsIgnoreCase("simpleNumber")) {
                     if (refEnum == RefEnum.REF) {
-                        throw new ConfigExcept("配置错误 不应该有右引用 ");
+                        throw new ConfigExcept("条件配置错误 不应该有右引用 ");
                     }
                     if (type.equalsIgnoreCase("simpleDate") && ops[1].equalsIgnoreCase("scope")) {
                         result.addProperty(ExpressInterface.OPERATOR_KEY, "and");
@@ -154,12 +171,12 @@ public class RwsConfigTransUtils {
                     }
                 } else {
                     if (refEnum != RefEnum.REF) {
-                        throw new ConfigExcept("配置错误 必须有右引用 ");
+                        throw new ConfigExcept("条件配置错误 必须有右引用 ");
                     }
                     String newop = null;
                     if (type.equalsIgnoreCase("refDateScope")) newop = "simpleDate";
                     else if (type.equalsIgnoreCase("refNumberScope")) newop = "simpleNumber";
-                    else throw new ConfigExcept("配置错误  operator unknown " + operator);
+                    else throw new ConfigExcept("条件配置错误 未知 operator  " + operator);
                     String countType = ops[1];
                     boolean equal = false;
                     if (ops.length == 3 && ops[2].equalsIgnoreCase("=")) equal = true;
@@ -196,7 +213,7 @@ public class RwsConfigTransUtils {
             } else {
                 JsonElement value = JsonAttrUtil.getJsonElement("value", configItem);
                 if (JsonAttrUtil.isEmptyJsonElement(value)) {
-                    throw new ConfigExcept("配置错误  value is null for operator " + operator);
+                    throw new ConfigExcept("条件配置错误  有operator没有value " + operator);
                 }
                 setSimpleProp(configItem, result, operator, needPath, value);
             }
@@ -260,8 +277,9 @@ public class RwsConfigTransUtils {
         JsonArray attr = JsonAttrUtil.getJsonArrayValue(RWS_ATTR_CONDITION_KEY, configJson);
         for (JsonElement element : attr) {
             JsonObject attrItem = element.getAsJsonObject();
-            JsonObject conditionJson = attrItem.get(RwsCountUtils.CONDTION_KEY).getAsJsonObject();
-            traceForNeedPath(conditionJson, needPath);
+            JsonObject conditionJson = JsonAttrUtil.getJsonObjectValue(RwsCountUtils.CONDTION_KEY, attrItem);
+            if (!StringUtil.isEmptyStr(needPath) && !JsonAttrUtil.isEmptyJsonElement(conditionJson))
+                traceForNeedPath(conditionJson, needPath);
         }
     }
 
@@ -325,7 +343,7 @@ public class RwsConfigTransUtils {
     }
 
     private static JsonArray getConditionArray(String key, JsonObject configJson) {
-        JsonArray match=null;
+        JsonArray match = null;
         JsonElement matchElem = JsonAttrUtil.getJsonElement(key, configJson);
         if (matchElem != null) {
             if (matchElem.isJsonArray()) {
@@ -344,9 +362,6 @@ public class RwsConfigTransUtils {
         if (StringUtil.isEmptyStr(resultsql)) {
             throw new ConfigExcept("resultsql is null");
         }
-        if (StringUtil.isEmptyStr(countPath)) {
-            throw new ConfigExcept("count path is null");
-        }
         String projectId = JsonAttrUtil.getStringValue(PROJECT_ID_KEY, configJson);
         String unique_id = JsonAttrUtil.getStringValue(UNIQUE_ID_KEY, configJson);
         if (StringUtil.isEmptyStr(projectId)) {
@@ -358,6 +373,11 @@ public class RwsConfigTransUtils {
         String method = JsonAttrUtil.getStringValue(RWS_CONF_METHOD_KEY, configJson);
         if (StringUtil.isEmptyStr(method)) {
             throw new ConfigExcept("method is null");
+        }
+        if (!isStaticMethod(method)) {
+            if (StringUtil.isEmptyStr(countPath)) {
+                throw new ConfigExcept("count path is null");
+            }
         }
         JsonArray attr = JsonAttrUtil.getJsonArrayValue(RwsConfigTransUtils.RWS_ATTR_CONDITION_KEY, configJson);
         if (JsonAttrUtil.isEmptyJsonElement(attr)) {

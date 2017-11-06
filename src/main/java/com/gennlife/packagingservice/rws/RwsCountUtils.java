@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.gennlife.packagingservice.rws.RwsConfigTransUtils.RWS_STATIC_VALUE_KEY;
+
 /**
  * Created by Chenjinfeng on 2017/10/28.
  */
@@ -123,7 +125,7 @@ public class RwsCountUtils {
         for (JsonElement element : attr) {
             JsonObject staticConfig = element.getAsJsonObject();
             JsonObject condtion = JsonAttrUtil.getJsonObjectValue(CONDTION_KEY, staticConfig);
-            value = JsonAttrUtil.getJsonElement("indexResultValue", staticConfig);
+            value = JsonAttrUtil.getJsonElement(RWS_STATIC_VALUE_KEY, staticConfig);
             if (JsonAttrUtil.isEmptyJsonElement(condtion)) {
                 emptyValue = value;
                 continue;
