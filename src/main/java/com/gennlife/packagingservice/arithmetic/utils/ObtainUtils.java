@@ -50,8 +50,8 @@ public class ObtainUtils {
             return null;
         }
         if (type == ArrayOpEnum.INDEX || type == ArrayOpEnum.REVERSEINDEX) {
-            int need = index[0] - 1;
-            if (need >= list.size()) return null;
+            int need = index[0];
+            if (need > list.size()) return null;
             if (type == ArrayOpEnum.INDEX)
                 result.add(list.get(need - 1));
             else {

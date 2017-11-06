@@ -22,6 +22,7 @@ import java.util.List;
 public class RwsCountUtils {
     public static final int ACTIVITY = 1;//事件
     public static final int QUOTA = 2;//指标
+    public static final int FILTER=3;//入排
     public static String SORT_PATH_KEY = "sortKey";
     public static String METHOD_PARAM_KEYS = "functionParam";
     public static final String CONDTION_KEY = "condtion";
@@ -43,6 +44,10 @@ public class RwsCountUtils {
 
         JsonObject valueConfig = attr.get(0).getAsJsonObject();
         int activeType = JsonAttrUtil.getJsonElement(ACTIVE_TYPE_KEY, config).getAsInt();
+        if(activeType!=ACTIVITY && activeType!=QUOTA)
+        {
+            throw new ConfigExcept("activeType must be 1 or 2 ,now: "+activeType);
+        }
         JsonObject condtion = JsonAttrUtil.getJsonObjectValue(CONDTION_KEY, valueConfig);
         ConditionCheck conditionCheck = new ConditionCheck(condtion);
         conditionCheck.addData(RwsConfigTransUtils.RWS_STATIC_MAP_TABLE_NAME, rwsRef);
