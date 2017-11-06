@@ -1,151 +1,221 @@
 {
-  "createTime": 1509340797000,
-  "operatorNum": "对应operator的次序",
-  "activeType": 2,
-  "updateTime": 1509340797000,
-  "attr": [
-    {
-      "operatorNum": "对应operator的次序",
-      "indexResultValue": "",
-      "functionParam": "函数参数",
-      "operator": "次序",
-      "function": "函数名称",
-      "id": "9e33ac45f72242ec96bf3d08023712ed",
-      "indexType": "指标类型",
-      "indexTyoe": "指标类型",
-      "activeIndexId": "6c6cb2a099be436f83bda3f6416db5a8",
-      "activeResultDesc": "就诊",
-      "activeResult": "visits",
-      "indexColumnDesc": "质保字段描述",
-      "searchScope": "搜索范围",
-      "indexColumn": "指标字段",
-      "condtion": {
-        "operator": "and",
-        "needPath": "visits",
-        "detail": [
+  "filter": {
+    "id_list": [
+      "064DC076E0A6446D8309BCEB12E666B8",
+      "468B846FBA544200AE3297FF055634C7",
+      "681D72C381444F8B96BA4B192A924348",
+      "706CA282CE7D469F8070E95E99F6FB42",
+      "886B7AD5D3A24677A6EE6759B3F7690A",
+      "C75D1913F84C40FDB24CEAFDF8B2FB9E"
+    ],
+    "unique_id": "C96C57973A19414FA82F057953DCC55B",
+    "updateTime": 1509962341000,
+    "isTmp": false,
+    "filter": {
+      "activeIndexConfigId": "C704D2DBAA7149ABAA9CBAF40B564463",
+      "conditionType": 4,
+      "detail": [
+        {
+          "activeIndexConfigId": "C704D2DBAA7149ABAA9CBAF40B564463",
+          "detail": [],
+          "details": [],
+          "id": "DB409181F3954A428B9AA3DEC07AAD72",
+          "inner": [],
+          "logicSing": "",
+          "needPath": "",
+          "operatorSign": "equal",
+          "operatorSignDesc": "精确匹配(完整词)",
+          "parentId": "67BF47FF205C432CA3A13D15BF96AC73",
+          "refActiveId": "",
+          "refActiveName": "",
+          "refRelation": "direct",
+          "sourceTagName": "patient_info.ETHNIC",
+          "sourceTagNameDesc": "患者基本信息.民族",
+          "targetTagName": "",
+          "targetTagNameDesc": "",
+          "type": 2,
+          "value": [
+            "汉族"
+          ]
+        }
+      ],
+      "id": "67BF47FF205C432CA3A13D15BF96AC73",
+      "level": 1,
+      "needPath": ".",
+      "operatorSign": "and",
+      "type": 1,
+      "uuid": "f6afc9d5-ecbd-449a-a94b-b7c3a91851c5"
+    },
+    "sortKey": "",
+    "activeType": 3,
+    "createTime": 1509962341000,
+    "project_id": "9a16e3e7-9d89-470f-8c70-8ec2f4b0362c",
+    "name": "纳排",
+    "id": "C96C57973A19414FA82F057953DCC55B",
+    "projectName": "测试",
+    "config": [
+      {
+        "activeIndexId": "C96C57973A19414FA82F057953DCC55B",
+        "indexTypeDesc": "",
+        "searchScope": "",
+        "operator": "",
+        "activeResult": "入排",
+        "indexType": "",
+        "operatorNum": "",
+        "indexColumn": "",
+        "indexColumnDesc": "",
+        "indexResultValue": "",
+        "function": "",
+        "activeResultDesc": "入排",
+        "functionParam": "",
+        "id": "7056C7F54BB74A81AB272233BC6D68CD",
+        "conditions": [
           {
-            "value": "颈动脉狭窄",
-            "needPath": "",
-            "operator": "contain",
-            "key": "visits.diagnose.DIAGNOSIS"
-          },
-          {
-            "value": "颈动脉狭窄",
-            "needPath": "",
-            "operator": "contain",
-            "key": "visits.diagnose.DIAGNOSIS"
-          },
-          {
-            "value": "颈动脉狭窄",
-            "needPath": "",
-            "operator": "contain",
-            "key": "visits.diagnose.DIAGNOSIS"
-          },
-          {
-            "operator": "and",
-            "needPath": "visits",
-            "detail": [
+            "level": 1,
+            "operatorSign": "and",
+            "activeIndexConfigId": "7056C7F54BB74A81AB272233BC6D68CD",
+            "needPath": ".",
+            "type": 1,
+            "inner": [],
+            "uuid": "8ecbc6a2-902b-436c-960b-492eea0340b0",
+            "conditionType": 3,
+            "details": [
               {
-                "value": "颈动脉狭窄",
+                "operatorSign": "equal",
+                "sourceTagName": "patient_info.GENDER",
+                "logicSing": "",
+                "operatorSignDesc": "精确匹配(完整词)",
+                "targetTagName": "",
+                "targetTagNameDesc": "",
+                "activeIndexConfigId": "7056C7F54BB74A81AB272233BC6D68CD",
                 "needPath": "",
-                "operator": "contain",
-                "key": "visits.diagnose.DIAGNOSIS"
-              },
-              {
-                "value": "颈动脉狭窄",
-                "needPath": "",
-                "operator": "contain",
-                "key": "visits.diagnose.DIAGNOSIS"
-              },
-              {
-                "operator": "and",
-                "needPath": "visits",
-                "detail": [
-                  {
-                    "value": "颈动脉狭窄",
-                    "needPath": "",
-                    "operator": "contain",
-                    "key": "visits.diagnose.DIAGNOSIS"
-                  },
-                  {
-                    "value": "颈动脉狭窄",
-                    "needPath": "",
-                    "operator": "contain",
-                    "key": "visits.diagnose.DIAGNOSIS"
-                  },
-                  {
-                    "value": "颈动脉狭窄",
-                    "needPath": "",
-                    "operator": "contain",
-                    "key": "visits.diagnose.DIAGNOSIS"
-                  }
+                "refRelation": "direct",
+                "type": 2,
+                "inner": [],
+                "parentId": "A037FE36DDF04DEF9E5489DF4A4CA977",
+                "refActiveId": "",
+                "sourceTagNameDesc": "患者基本信息.性别",
+                "refActiveName": "",
+                "details": [],
+                "detail": [],
+                "id": "1A976BE3F0414AB0ADC2361C6BA65920",
+                "value": [
+                  "男"
                 ]
-              },
-              {
-                "value": "颈动脉狭窄",
-                "needPath": "",
-                "operator": "contain",
-                "key": "visits.diagnose.DIAGNOSIS"
               }
-            ]
-          },
-          {
-            "value": "颈动脉狭窄",
-            "needPath": "",
-            "operator": "contain",
-            "key": "visits.diagnose.DIAGNOSIS"
-          },
-          {
-            "value": "颈动脉狭窄",
-            "needPath": "",
-            "operator": "contain",
-            "key": "visits.diagnose.DIAGNOSIS"
-          },
-          {
-            "value": "颈动脉狭窄",
-            "needPath": "",
-            "operator": "contain",
-            "key": "visits.diagnose.DIAGNOSIS"
-          },
-          {
-            "operator": "and",
-            "needPath": "visits",
+            ],
             "detail": [
               {
-                "value": "颈动脉狭窄",
+                "operatorSign": "equal",
+                "sourceTagName": "patient_info.GENDER",
+                "logicSing": "",
+                "operatorSignDesc": "精确匹配(完整词)",
+                "targetTagName": "",
+                "targetTagNameDesc": "",
+                "activeIndexConfigId": "7056C7F54BB74A81AB272233BC6D68CD",
                 "needPath": "",
-                "operator": "contain",
-                "key": "visits.diagnose.DIAGNOSIS"
-              },
-              {
-                "value": "颈动脉狭窄",
-                "needPath": "",
-                "operator": "contain",
-                "key": "visits.diagnose.DIAGNOSIS"
-              },
-              {
-                "value": "颈动脉狭窄",
-                "needPath": "",
-                "operator": "contain",
-                "key": "visits.diagnose.DIAGNOSIS"
+                "refRelation": "direct",
+                "type": 2,
+                "inner": [],
+                "parentId": "A037FE36DDF04DEF9E5489DF4A4CA977",
+                "refActiveId": "",
+                "sourceTagNameDesc": "患者基本信息.性别",
+                "refActiveName": "",
+                "details": [],
+                "detail": [],
+                "id": "1A976BE3F0414AB0ADC2361C6BA65920",
+                "value": [
+                  "男"
+                ]
               }
-            ]
+            ],
+            "id": "A037FE36DDF04DEF9E5489DF4A4CA977"
+          }
+        ]
+      },
+      {
+        "activeIndexId": "C96C57973A19414FA82F057953DCC55B",
+        "indexTypeDesc": "",
+        "searchScope": "",
+        "operator": "",
+        "activeResult": "排除",
+        "indexType": "",
+        "operatorNum": "",
+        "indexColumn": "",
+        "indexColumnDesc": "",
+        "indexResultValue": "",
+        "function": "",
+        "activeResultDesc": "排除",
+        "functionParam": "",
+        "id": "C704D2DBAA7149ABAA9CBAF40B564463",
+        "conditions": [
+          {
+            "level": 1,
+            "operatorSign": "and",
+            "activeIndexConfigId": "C704D2DBAA7149ABAA9CBAF40B564463",
+            "needPath": ".",
+            "type": 1,
+            "inner": [],
+            "uuid": "f6afc9d5-ecbd-449a-a94b-b7c3a91851c5",
+            "conditionType": 4,
+            "details": [
+              {
+                "operatorSign": "equal",
+                "sourceTagName": "patient_info.ETHNIC",
+                "logicSing": "",
+                "operatorSignDesc": "精确匹配(完整词)",
+                "targetTagName": "",
+                "targetTagNameDesc": "",
+                "activeIndexConfigId": "C704D2DBAA7149ABAA9CBAF40B564463",
+                "needPath": "",
+                "refRelation": "direct",
+                "type": 2,
+                "inner": [],
+                "parentId": "67BF47FF205C432CA3A13D15BF96AC73",
+                "refActiveId": "",
+                "sourceTagNameDesc": "患者基本信息.民族",
+                "refActiveName": "",
+                "details": [],
+                "detail": [],
+                "id": "DB409181F3954A428B9AA3DEC07AAD72",
+                "value": [
+                  "汉族"
+                ]
+              }
+            ],
+            "detail": [
+              {
+                "operatorSign": "equal",
+                "sourceTagName": "patient_info.ETHNIC",
+                "logicSing": "",
+                "operatorSignDesc": "精确匹配(完整词)",
+                "targetTagName": "",
+                "targetTagNameDesc": "",
+                "activeIndexConfigId": "C704D2DBAA7149ABAA9CBAF40B564463",
+                "needPath": "",
+                "refRelation": "direct",
+                "type": 2,
+                "inner": [],
+                "parentId": "67BF47FF205C432CA3A13D15BF96AC73",
+                "refActiveId": "",
+                "sourceTagNameDesc": "患者基本信息.民族",
+                "refActiveName": "",
+                "details": [],
+                "detail": [],
+                "id": "DB409181F3954A428B9AA3DEC07AAD72",
+                "value": [
+                  "汉族"
+                ]
+              }
+            ],
+            "id": "67BF47FF205C432CA3A13D15BF96AC73"
           }
         ]
       }
-    }
-  ],
-  "projectId": "18912313132123",
-  "functionParam": "函数参数",
-  "operator": "次序",
-  "function": "first",
-  "unique_id": "6c6cb2a099be436f83bda3f6416db5a8",
-  "id": "6c6cb2a099be436f83bda3f6416db5a8",
-  "resultsql": "update table tableName set status=PRODUCESTATUA,message=MESSAGE,complateTime=COMPLATETIME,caseTotal=CASETOTAL,marketApply=MARKETAPPLY,searchResult=SEARCHRESULT,containApply=CONTAINAPPLY where active_index_id=6c6cb2a099be436f83bda3f6416db5a8",
-  "name": "活动",
-  "activeResult": "visits",
-  "isTmp": false,
-  "projectName": "测试项目",
-  "sortKey": "visits.visit_info.ADMISSION_DATE",
-  "idList": []
+    ],
+    "projectId": "9a16e3e7-9d89-470f-8c70-8ec2f4b0362c",
+    "resultsql": "update active_index_task set status\u003dPRODUCESTATUA,message\u003dMESSAGE,complate_time\u003dCOMPLATETIME,case_total\u003dCASETOTAL,market_apply\u003dMARKETAPPLY,search_result\u003dSEARCHRESULT,contain_apply\u003dCONTAINAPPLY where active_index_id\u003d\u0027INDEXC96C57973A19414FA82F057953DCC55B\u0027 and  id\u003d\u0027C96C57973A19414FA82F057953DCC55B\u0027",
+    "idList": []
+  },
+  "projectId": "9a16e3e7-9d89-470f-8c70-8ec2f4b0362c"
 }

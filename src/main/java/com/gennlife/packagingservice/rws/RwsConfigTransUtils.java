@@ -34,9 +34,9 @@ public class RwsConfigTransUtils {
     public static final String RIGHT_OP_PARAM_KEY = "rightCountParam";
     public static final String RESULTSQL_KEY = "resultsql";
     public static final String REF_ID_LIST_KEY = "idList";
-    public static final String IS_TMP_KEY="isTmp";
-    public static final String UNIQUE_ID_KEY="unique_id";
-    public static final String PROJECT_ID_KEY="projectId";
+    public static final String IS_TMP_KEY = "isTmp";
+    public static final String UNIQUE_ID_KEY = "unique_id";
+    public static final String PROJECT_ID_KEY = "projectId";
 
     public static JsonObject transRwsConditionConfig(JsonArray condition) throws ConfigExcept {
         if (JsonAttrUtil.isEmptyJsonElement(condition)) return null;
@@ -90,9 +90,9 @@ public class RwsConfigTransUtils {
             JsonObject conditionJson = transRwsConditionConfig(attrItem.getAsJsonArray("conditions"));
             idList.addAll(getRefIdList(conditionJson));
             attrItem.remove("conditions");
-            String id=JsonAttrUtil.getStringValue(RwsConfigTransUtils.UNIQUE_ID_KEY,attrItem);
+            String id = JsonAttrUtil.getStringValue(RwsConfigTransUtils.UNIQUE_ID_KEY, attrItem);
             attrItem.add(RwsCountUtils.CONDTION_KEY, conditionJson);
-            if(StringUtil.isEmptyStr(id))idList.add(id);
+            if (StringUtil.isEmptyStr(id)) idList.add(id);
         }
         configJson.add(REF_ID_LIST_KEY, JsonAttrUtil.toJsonTree(idList));
     }
@@ -196,7 +196,7 @@ public class RwsConfigTransUtils {
             } else {
                 JsonElement value = JsonAttrUtil.getJsonElement("value", configItem);
                 if (JsonAttrUtil.isEmptyJsonElement(value)) {
-                    throw new ConfigExcept("配置错误  value is null for operator "+operator);
+                    throw new ConfigExcept("配置错误  value is null for operator " + operator);
                 }
                 setSimpleProp(configItem, result, operator, needPath, value);
             }
@@ -300,9 +300,6 @@ public class RwsConfigTransUtils {
         String project_id = JsonAttrUtil.getStringValue(PROJECT_ID_KEY, configJson);
         if (StringUtil.isEmptyStr(project_id))
             throw new ConfigExcept("project_id null");
-        /*JsonArray match = JsonAttrUtil.getJsonArrayValue("match", configJson);
-        if (JsonAttrUtil.isEmptyJsonElement(match))
-            throw new ConfigExcept("match is null");*/
         String resultsql = JsonAttrUtil.getStringValue(RESULTSQL_KEY, configJson);
         if (StringUtil.isEmptyStr(resultsql)) {
             throw new ConfigExcept("resultsql is null");
@@ -311,8 +308,10 @@ public class RwsConfigTransUtils {
 
     public static void transFilterPatientConfig(JsonObject configJson) throws ConfigExcept {
         checkFilterPatientConfig(configJson);
-        JsonArray match = JsonAttrUtil.getJsonArrayValue("match", configJson);
-        JsonArray filter = JsonAttrUtil.getJsonArrayValue("filter", configJson);
+        JsonArray match = getConditionArray("match", configJson);
+        JsonArray filter = getConditionArray("filter", configJson);
+        configJson.remove("filter");
+        configJson.remove("match");
         Set<String> idList = new TreeSet<>();
         JsonObject matchJson = transRwsConditionConfig(match);
         configJson.add("match", matchJson);
@@ -323,6 +322,20 @@ public class RwsConfigTransUtils {
             traceForRefIdList(filterJson, idList);
         }
         configJson.add(REF_ID_LIST_KEY, JsonAttrUtil.toJsonTree(idList));
+    }
+
+    private static JsonArray getConditionArray(String key, JsonObject configJson) {
+        JsonArray match=null;
+        JsonElement matchElem = JsonAttrUtil.getJsonElement(key, configJson);
+        if (matchElem != null) {
+            if (matchElem.isJsonArray()) {
+                match = matchElem.getAsJsonArray();
+            } else if (matchElem.isJsonObject()) {
+                match = new JsonArray();
+                match.add(matchElem);
+            }
+        }
+        return match;
     }
 
     public static void checkActiveConfig(JsonObject configJson) throws ConfigExcept {
