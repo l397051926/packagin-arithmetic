@@ -372,11 +372,11 @@ public class RwsConfigTransUtils {
         }
         String method = JsonAttrUtil.getStringValue(RWS_CONF_METHOD_KEY, configJson);
         if (StringUtil.isEmptyStr(method)) {
-            throw new ConfigExcept("method is null");
+            throw new ConfigExcept("函数名为空 is null");
         }
         if (!isStaticMethod(method)) {
             if (StringUtil.isEmptyStr(countPath)) {
-                throw new ConfigExcept("count path is null");
+                throw new ConfigExcept("count path is null [ 指标的计算字段，活动的检索结果 ]");
             }
         }
         JsonArray attr = JsonAttrUtil.getJsonArrayValue(RwsConfigTransUtils.RWS_ATTR_CONDITION_KEY, configJson);
@@ -387,7 +387,7 @@ public class RwsConfigTransUtils {
         String sortKey = JsonAttrUtil.getStringValue(SORT_PATH_KEY, configJson);
         if (isActivity(activeType)) {
             if (StringUtil.isEmptyStr(sortKey)) {
-                throw new ConfigExcept("sortKey is null");
+                throw new ConfigExcept("排序字段为空(sortKey) is null");
             }
         }
         if (!isStaticMethod(method)) {
@@ -398,7 +398,7 @@ public class RwsConfigTransUtils {
                 try {
                     ArrayOpEnum.valueOf(method);
                 } catch (Exception e2) {
-                    throw new ConfigExcept("unknown method " + method);
+                    throw new ConfigExcept("未知函数： " + method);
                 }
             }
         }
