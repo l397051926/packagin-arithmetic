@@ -92,9 +92,10 @@ public class SimpleDateOperator extends DyadicOperationRightIsStaticValue {
     @Override
     protected JsonElement merge(JsonElement value, JsonElement staticValue) {
         try {
+            if (value == null || value.isJsonNull()) return staticValue;
             return new JsonPrimitive(value.getAsString() + ";" + staticValue.getAsString());
         } catch (Exception e) {
-            logger.error("config error "+value+" "+staticValue);
+            logger.error("config error " + value + " " + staticValue);
             setHasError(true);
         }
         return null;

@@ -32,9 +32,12 @@ public class DirectOperandDatas extends AbstractOperandDatasWrapper implements O
         if (StringUtil.isEmptyStr(detailkey)) {
             detailkey = JsonAttrUtil.getStringValue(DESCIBEKEY, config);
         }
+        if (StringUtil.isEmptyStr(detailkey)) {
+            throw new PathNodeError("detailkey  must not null " + config);
+        }
         this.findindex = PathNode.getPathItem(contextNode, detailkey);
         if (findindex == null) {
-            throw new PathNodeError(" findindex must not null");
+            throw new PathNodeError(" findindex must not null ");
         }
         LinkedList<LinkedList<PathItem>> lastFindindex = findindex;
         LinkedList<FindIndexModel<JsonElement>> datas = conditionCheck.getOriginData();

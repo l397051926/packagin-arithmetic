@@ -64,8 +64,11 @@ public class CompareAnalise<T> {
     }
 
     public void parse(String target) {
-        if (StringUtil.isEmptyStr(target))
-            throw new CompareAnaliseError("target is null");
+        if (StringUtil.isEmptyStr(target)) {
+            setHasError(true);
+            logger.error("比较符的target 为空");
+            return;
+        }
         String[] items = target.trim().split(";");
         int i = 0;
         for (String item : items) {
@@ -89,7 +92,11 @@ public class CompareAnalise<T> {
                     break;
                 }
         }
-        if (i < 1) throw new CompareAnaliseError("length must >=2 " + target);
+        if (i < 1) {
+            setHasError(true);
+            logger.error("length must >=2 " + target);
+            return;
+        }
         if (data == null && !isHasError()) {
             setHasError(true);
         }

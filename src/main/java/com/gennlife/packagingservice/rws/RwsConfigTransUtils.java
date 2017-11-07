@@ -213,7 +213,7 @@ public class RwsConfigTransUtils {
             } else {
                 JsonElement value = JsonAttrUtil.getJsonElement("value", configItem);
                 if (JsonAttrUtil.isEmptyJsonElement(value)) {
-                    throw new ConfigExcept("条件配置错误  有operator没有value " + operator);
+                    throw new ConfigExcept("条件配置错误  value is null" + operator);
                 }
                 setSimpleProp(configItem, result, operator, needPath, value);
             }
@@ -257,21 +257,23 @@ public class RwsConfigTransUtils {
             if (StringUtil.isEmptyStr(refId)) {
                 throw new ConfigExcept("配置错误  refActiveId is null");
             }
-            setRefProp(result, refEnum, refId);
+            if (refEnum == RefEnum.LEFTREF) {
+                result.addProperty(OperandDataFactory.UNARY_TYPE_KEY, OperandDataFactory.MAP_STATIC_TYPE);
+                result.addProperty(UNARY_REF_ID_KEY, refId);
+                result.addProperty(OperandDataFactory.UNARY_MAP_NAME_KEY, RWS_STATIC_MAP_TABLE_NAME);
+            } else if (refEnum == RefEnum.REF) {
+                String unaryKey = JsonAttrUtil.getStringValue("sourceTagName", configItem);
+                if (StringUtil.isEmptyStr(unaryKey)) {
+                    throw new ConfigExcept("配置错误  sourceTagName is null");
+                }
+                result.addProperty(ExpressInterface.DETAIL_KEY, unaryKey);
+                result.addProperty(OperandDataFactory.DYADIC_TYPE_KEY, OperandDataFactory.MAP_STATIC_TYPE);
+                result.addProperty(DYADIC_REF_ID_KEY, refId);
+                result.addProperty(OperandDataFactory.DYADIC_MAP_NAME_KEY, RWS_STATIC_MAP_TABLE_NAME);
+            }
         }
     }
 
-    private static void setRefProp(JsonObject result, RefEnum refEnum, String refId) {
-        if (refEnum == RefEnum.LEFTREF) {
-            result.addProperty(OperandDataFactory.UNARY_TYPE_KEY, OperandDataFactory.MAP_STATIC_TYPE);
-            result.addProperty(UNARY_REF_ID_KEY, refId);
-            result.addProperty(OperandDataFactory.UNARY_MAP_NAME_KEY, RWS_STATIC_MAP_TABLE_NAME);
-        } else if (refEnum == RefEnum.REF) {
-            result.addProperty(OperandDataFactory.DYADIC_TYPE_KEY, OperandDataFactory.MAP_STATIC_TYPE);
-            result.addProperty(DYADIC_REF_ID_KEY, refId);
-            result.addProperty(OperandDataFactory.DYADIC_MAP_NAME_KEY, RWS_STATIC_MAP_TABLE_NAME);
-        }
-    }
 
     public static void transConfigItemForNewNeedPath(JsonObject configJson, String needPath) {
         JsonArray attr = JsonAttrUtil.getJsonArrayValue(RWS_ATTR_CONDITION_KEY, configJson);

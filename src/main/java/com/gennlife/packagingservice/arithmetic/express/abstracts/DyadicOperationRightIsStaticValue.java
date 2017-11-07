@@ -38,6 +38,11 @@ public abstract class DyadicOperationRightIsStaticValue extends AbstractDirectOp
                 }
             }
         }
+        if (this.hasError()) {
+            setFindFlag(false);
+            setFindPathNode(null);
+            return;
+        }
         if (JsonAttrUtil.isEmptyJsonElement(value)) setTarget("");
         else if (value.isJsonArray()) setTarget(value.getAsJsonArray());
         else if (value.isJsonPrimitive()) setTarget(value.getAsString());
