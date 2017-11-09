@@ -111,7 +111,7 @@ public class RwsCountUtils {
     }
 
     private static CountValueEntity getMatchNa() {
-        return new CountValueEntity("", true);
+        return new CountValueEntity("", false);
     }
 
     public static boolean isStaticMethod(String method) {
