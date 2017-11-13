@@ -325,11 +325,11 @@ public class RwsConfigTransUtils {
         if (item.has(RWS_STRONG_REF_KEY)) {
             JsonArray array = item.getAsJsonArray(RWS_STRONG_REF_KEY);
             if (array != null && array.size() > 0) {
-                String needPath = JsonAttrUtil.getStringValue(ExpressInterface.NEED_PATH_KEY, item);
+                //String needPath = JsonAttrUtil.getStringValue(ExpressInterface.NEED_PATH_KEY, item);
                 JsonObject newLeafJson = new JsonObject();
                 JsonAttrUtil.addAllJsonValueIntoAnotherJson(item, newLeafJson);
                 JsonAttrUtil.makeEmpty(item);
-                item.addProperty(ExpressInterface.NEED_PATH_KEY, needPath);
+                item.addProperty(ExpressInterface.NEED_PATH_KEY, ".");
                 item.addProperty(RWS_OPERATOR_SIGN, LogicExpressEnum.AND.name());
                 newLeafJson.remove(RWS_STRONG_REF_KEY);
                 newLeafJson.addProperty(ExpressInterface.NEED_PATH_KEY, "");
