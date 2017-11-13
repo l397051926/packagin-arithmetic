@@ -162,17 +162,7 @@ public class ConditionCheck {
     }
 
     public <T extends JsonElement> LinkedList<FindIndexModel<JsonElement>> filterInJson(LinkedList<T> lists) {
-        return filter(exchange(lists));
-    }
-
-    public <T extends JsonElement> LinkedList<FindIndexModel<JsonElement>> exchange(LinkedList<T> lists) {
-        LinkedList<FindIndexModel<JsonElement>> result = new LinkedList<>();
-        for (JsonElement element : lists) {
-            FindIndexModel<JsonElement> findIndexModel = new FindIndexModel<>();
-            findIndexModel.setValue(element);
-            result.add(findIndexModel);
-        }
-        return result;
+        return filter(JsonAttrUtil.exchangeForFindIndexModel(lists));
     }
 
 
@@ -203,7 +193,6 @@ public class ConditionCheck {
         lists.add(findIndexModel);
         return getPathItemsByPathNode(lists, null);
     }
-
     public PathNode getPathItemsByPathNode(LinkedList<FindIndexModel<JsonElement>> lists, PathNode pathNode) {
         setOrigindata(lists);
         if (init == false) initCondition();

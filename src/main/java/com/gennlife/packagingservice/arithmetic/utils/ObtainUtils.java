@@ -1,5 +1,7 @@
 package com.gennlife.packagingservice.arithmetic.utils;
 
+import com.gennlife.packagingservice.arithmetic.assign.Classifier;
+import com.gennlife.packagingservice.arithmetic.express.ConditionCheck;
 import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractPath;
 import com.gennlife.packagingservice.arithmetic.express.enitity.FindIndexModel;
 import com.gennlife.packagingservice.arithmetic.express.enitity.NumberResultEntity;
@@ -176,6 +178,31 @@ public class ObtainUtils {
             numberResultEntity.setValue(doubles.get(index));
             return numberResultEntity;
         }
+        if (type == NumberOpEnum.MODE_MAX) {
+            HashMap<Double, LinkedList<FindIndexModel<T>>> map = new HashMap<>();
+            Iterator<Double> valueIter = doubles.iterator();
+            Iterator<FindIndexModel<T>> sourceIter = source.iterator();
+            while (valueIter.hasNext()) {
+                Double valueItem = valueIter.next();
+                if (!map.containsKey(valueItem)) map.put(valueItem, new LinkedList<FindIndexModel<T>>());
+                map.get(valueItem).add(sourceIter.next());
+            }
+            Double maxValue = null;
+            int maxSize = 0;
+            LinkedList<FindIndexModel<T>> matchList = null;
+            for (Map.Entry<Double, LinkedList<FindIndexModel<T>>> entry : map.entrySet()) {
+                Double mapKey = entry.getKey();
+                LinkedList<FindIndexModel<T>> mapValue = entry.getValue();
+                if (mapValue.size() > maxSize) {
+                    maxValue = mapKey;
+                    maxSize = mapValue.size();
+                    matchList = mapValue;
+                }
+            }
+            numberResultEntity.setValue(maxValue);
+            numberResultEntity.setList(matchList);
+            return numberResultEntity;
+        }
         return null;
     }
 
@@ -237,12 +264,12 @@ public class ObtainUtils {
         }
     };
 
-    public static List<FindIndexModel<JsonElement>> getSortResultByAscDate(JsonObject patient, PathNode find, String sortKey, String countPath) {
+    public static LinkedList<FindIndexModel<JsonElement>> getSortResultByAscDate(LinkedList<FindIndexModel<JsonElement>> patient, PathNode find, String sortKey, String countPath) {
         LinkedList<LinkedList<PathItem>> emptyPathItems = new LinkedList<>();
         LinkedList<LinkedList<PathItem>> pathItems = PathNode.getPathItem(find, sortKey);
         boolean isInTheSameGroup = isInTheSameGroup(sortKey, countPath);
-        List<FindIndexModel<JsonElement>> sortList = new LinkedList<>();
-        List<FindIndexModel<JsonElement>> resultList = new LinkedList<>();
+        LinkedList<FindIndexModel<JsonElement>> sortList = new LinkedList<>();
+        LinkedList<FindIndexModel<JsonElement>> resultList = new LinkedList<>();
         for (LinkedList<PathItem> pathitem : pathItems) {
             LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(pathitem, sortKey), patient);
             if (tmp == null || tmp.size() == 0) {
@@ -289,6 +316,12 @@ public class ObtainUtils {
         return resultList;
     }
 
+    public static LinkedList<FindIndexModel<JsonElement>> getSortResultByAscDate(JsonObject patient, PathNode find, String sortKey, String countPath) {
+        LinkedList<JsonElement> list = new LinkedList<>();
+        list.add(patient);
+        return getSortResultByAscDate(JsonAttrUtil.exchangeForFindIndexModel(list), find, sortKey, countPath);
+    }
+
     public static boolean isInTheSameGroup(String sortKey, String countPath) {
         boolean isInTheSameGroup = false;
         try {
@@ -305,5 +338,55 @@ public class ObtainUtils {
             if (COMPARATOR_PATHITEM.compare(listItem.getPathItem(), item.getPathItem()) == 0) return true;
         }
         return false;
+    }
+
+    public static LinkedList<FindIndexModel<JsonElement>> filterByTime(LinkedList<FindIndexModel<JsonElement>> list, String dateTime, boolean needEqual, boolean needless) {
+        return JsonAttrUtil.compare(list, dateTime, needEqual, needless);
+    }
+
+    public static LinkedList<FindIndexModel<JsonElement>> filterByTime(LinkedList<FindIndexModel<JsonElement>> list, String dateTime, boolean needEqual, boolean needless, boolean onlyEqual) {
+        return JsonAttrUtil.compare(list, dateTime, needEqual, needless, onlyEqual);
+    }
+
+    public static LinkedList<FindIndexModel<JsonElement>> getListByBaseFilter(FindIndexModel<JsonElement> datas, String from, JsonObject condition, String sortKey, ArrayOpEnum opEnum) {
+        LinkedList<FindIndexModel<JsonElement>> list = new LinkedList<>();
+        list.add(datas);
+        return getListByBaseFilter(list, from, condition, sortKey, opEnum);
+    }
+
+    public static LinkedList<FindIndexModel<JsonElement>> getListByBaseFilter(LinkedList<FindIndexModel<JsonElement>> list, String from, JsonObject condition, String sortKey, ArrayOpEnum opEnum) {
+        LinkedList<FindIndexModel<JsonElement>> froms = JsonAttrUtil.getAllValueWithAnalisePath(from, list);
+        if (froms == null || froms.size() == 0) return null;
+        PathNode pathNode = null;
+        if (condition != null) {
+            ConditionCheck conditionCheck = new ConditionCheck(condition);
+            froms = conditionCheck.filter(froms);
+            pathNode = conditionCheck.getPathItemsByPathNode(list, null);
+            if (pathNode == null) return null;
+        }
+        if (StringUtil.isNotEmptyStr(sortKey)) {
+            if (pathNode == null) pathNode = new PathNode();
+            froms = ObtainUtils.getSortResultByAscDate(froms, pathNode, sortKey, from);
+        }
+        if (opEnum != null) {
+            froms = new LinkedList<>(ObtainUtils.obtainList(froms, opEnum));
+        }
+        if (froms == null || froms.size() == 0) return null;
+        return froms;
+    }
+
+    public static Map<String, LinkedList<FindIndexModel<JsonElement>>> classify(LinkedList<FindIndexModel<JsonElement>> sources, String countPath, Classifier classifier) {
+        LinkedList<FindIndexModel<JsonElement>> dataList = JsonAttrUtil.getAllValueWithAnalisePath(countPath, sources);
+        if (dataList == null || dataList.size() == 0 || classifier == null) return null;
+        Map<String, LinkedList<FindIndexModel<JsonElement>>> map = new HashMap<>();
+        for (FindIndexModel<JsonElement> dataItem : dataList) {
+            String value = classifier.getClassifierKey(dataItem.getValue());
+            if (StringUtil.isEmptyStr(value)) {
+                value = "";
+            }
+            if (!map.containsKey(value)) map.put(value, new LinkedList<>());
+            map.get(value).add(dataItem);
+        }
+        return map;
     }
 }

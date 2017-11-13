@@ -680,6 +680,16 @@ public class JsonAttrUtil {
         return result;
     }
 
+    public static LinkedList<FindIndexModel<JsonElement>> getAllValueWithAnalisePath(String path, LinkedList<FindIndexModel<JsonElement>> begins) {
+        LinkedList<FindIndexModel<JsonElement>> result = null;
+        for (FindIndexModel<JsonElement> begin : begins) {
+            LinkedList<FindIndexModel<JsonElement>> tmp = getAllValueWithAnalisePath(path, begin);
+            if (result == null) result = tmp;
+            else result.addAll(tmp);
+        }
+        return result;
+    }
+
     public static LinkedList<FindIndexModel<JsonElement>> getAllValueWithAnalisePath(String path, FindIndexModel<JsonElement> begin) {
         LinkedList<FindIndexModel<JsonElement>> tmplist = new LinkedList<>();
         if (begin == null) return tmplist;
@@ -895,9 +905,22 @@ public class JsonAttrUtil {
         }
     }
 
-    public static void makeEmpty(JsonArray array) {
-        if (array == null) return;
-        while (array.size() > 0) array.remove(0);
+    public static void makeEmpty(JsonElement element) {
+        if (JsonAttrUtil.isEmptyJsonElement(element)) return;
+        if (element instanceof JsonArray) {
+            JsonArray array = element.getAsJsonArray();
+            while (array.size() > 0) array.remove(0);
+            return;
+        }
+        if (element instanceof JsonObject) {
+            JsonObject jsonObject = element.getAsJsonObject();
+            LinkedList<String> keys = new LinkedList<>();
+            for (Map.Entry<String, JsonElement> item : jsonObject.entrySet()) {
+                keys.add(item.getKey());
+            }
+            keys.forEach(key -> jsonObject.remove(key));
+            return;
+        }
     }
 
     public static void mergeJson(JsonObject target, JsonObject source) {
@@ -948,4 +971,29 @@ public class JsonAttrUtil {
             return primitive.getAsString();
     }
 
+    public static boolean isJsonNull(JsonElement element) {
+        return element == null || element.isJsonNull();
+    }
+
+    public static <T extends JsonElement> LinkedList<FindIndexModel<JsonElement>> exchangeForFindIndexModel(LinkedList<T> lists) {
+        LinkedList<FindIndexModel<JsonElement>> result = new LinkedList<>();
+        for (JsonElement element : lists) {
+            FindIndexModel<JsonElement> findIndexModel = new FindIndexModel<>();
+            findIndexModel.setValue(element);
+            result.add(findIndexModel);
+        }
+        return result;
+    }
+
+    public static <T extends JsonElement> LinkedList<FindIndexModel<JsonElement>> exchangeForFindIndexModel(T data) {
+        LinkedList<T> list = new LinkedList<T>();
+        list.add(data);
+        return exchangeForFindIndexModel(list);
+    }
+
+    public static void addAllJsonValueIntoAnotherJson(JsonObject from, JsonObject to) {
+        for (Map.Entry<String, JsonElement> fromItem : from.entrySet()) {
+            to.add(fromItem.getKey(), fromItem.getValue());
+        }
+    }
 }

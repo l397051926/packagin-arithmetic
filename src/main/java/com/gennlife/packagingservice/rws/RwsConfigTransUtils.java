@@ -16,10 +16,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.gennlife.packagingservice.arithmetic.express.factorys.OperandDataFactory.DYADIC_REF_ID_KEY;
 import static com.gennlife.packagingservice.arithmetic.express.factorys.OperandDataFactory.UNARY_REF_ID_KEY;
@@ -39,10 +36,19 @@ public class RwsConfigTransUtils {
     public static final String UNIQUE_ID_KEY = "unique_id";
     public static final String PROJECT_ID_KEY = "projectId";
     public static final String RWS_OPERATOR_SIGN = "operatorSign";
+    public static final String RWS_ATTR_CONDITION_KEY = "attr";
+    public static final String RWS_CONDITIONS_KEY = "conditions";
+    public static final String RWS_STRONG_REF_KEY = "strongRef";
+    public static final String RWS_NEED_PATH_KEY = "needPath";
+    public static final String RWS_DETAILS_KEY = "detail";
 
     public static JsonObject transRwsConditionConfig(JsonArray condition) throws ConfigExcept {
         if (JsonAttrUtil.isEmptyJsonElement(condition)) return null;
         JsonObject configJson = null;
+        JsonObject onlyOne = condition.remove(0).getAsJsonObject();
+        JsonAttrUtil.makeEmpty(condition);
+        condition.add(onlyOne);
+        opForStrongRefNeedPath(onlyOne, false);
         for (JsonElement element : condition) {
             JsonObject config = new JsonObject();
             transActiveConfig(element.getAsJsonObject(), config);
@@ -81,29 +87,26 @@ public class RwsConfigTransUtils {
 
     }
 
-
-    public static final String RWS_ATTR_CONDITION_KEY = "attr";
-
     public static void transConfigItemForCondition(JsonObject configJson) throws ConfigExcept {
         JsonArray attr = JsonAttrUtil.getJsonArrayValue(RWS_ATTR_CONDITION_KEY, configJson);
         String method = JsonAttrUtil.getStringValue(RWS_CONF_METHOD_KEY, configJson);
         if (isStaticMethod(method)) {
             for (JsonElement element : attr) {
                 JsonObject attrItem = element.getAsJsonObject();
-                JsonObject first = JsonAttrUtil.getJsonObjectValue("conditions", attrItem);
+                JsonObject first = JsonAttrUtil.getJsonObjectValue(RWS_CONDITIONS_KEY, attrItem);
                 String operator = JsonAttrUtil.getStringValue(RWS_OPERATOR_SIGN, first);
                 if (StringUtil.isEmptyStr(operator)) {
-                    attrItem.remove("conditions");
+                    attrItem.remove(RWS_CONDITIONS_KEY);
                 }
             }
         }
         Set<String> idList = new TreeSet<>();
         for (JsonElement element : attr) {
             JsonObject attrItem = element.getAsJsonObject();
-            if (attrItem.has("conditions")) {
-                JsonObject conditionJson = transRwsConditionConfig(attrItem.getAsJsonArray("conditions"));
+            if (attrItem.has(RWS_CONDITIONS_KEY)) {
+                JsonObject conditionJson = transRwsConditionConfig(attrItem.getAsJsonArray(RWS_CONDITIONS_KEY));
                 idList.addAll(getRefIdList(conditionJson));
-                attrItem.remove("conditions");
+                attrItem.remove(RWS_CONDITIONS_KEY);
                 String id = JsonAttrUtil.getStringValue(RwsConfigTransUtils.UNIQUE_ID_KEY, attrItem);
                 attrItem.add(RwsCountUtils.CONDTION_KEY, conditionJson);
                 if (StringUtil.isEmptyStr(id)) idList.add(id);
@@ -116,8 +119,8 @@ public class RwsConfigTransUtils {
 
     private static void transActiveConfig(JsonObject configItem, JsonObject result) throws ConfigExcept {
         String operator = JsonAttrUtil.getStringValue(RWS_OPERATOR_SIGN, configItem);
-        String needPath = JsonAttrUtil.getStringValue("needPath", configItem);
-        JsonArray originDetail = JsonAttrUtil.getJsonArrayValue("detail", configItem);
+        String needPath = JsonAttrUtil.getStringValue(RWS_NEED_PATH_KEY, configItem);
+        JsonArray originDetail = JsonAttrUtil.getJsonArrayValue(RWS_DETAILS_KEY, configItem);
         LogicExpressEnum logicExpressEnum = AbstractLogicExpress.checkLogicExpress(operator);
         if (logicExpressEnum == null) {
             InstructionOperatorEnum itemEnum = ConditionOperatorFactory.check(operator);
@@ -312,8 +315,34 @@ public class RwsConfigTransUtils {
         String countPath = JsonAttrUtil.getStringValue(ACTIVE_RESULT_KEY, configJson);
         transConfigItemForCondition(configJson);
         transConfigItemForNewNeedPath(configJson, countPath);
+    }
 
-
+    /**
+     * rws的强关联的处理,要么根节点，要么叶子节点
+     */
+    public static void opForStrongRefNeedPath(JsonObject item, boolean setLeaf) {
+        if (setLeaf) item.addProperty(ExpressInterface.NEED_PATH_KEY, "");
+        if (item.has(RWS_STRONG_REF_KEY)) {
+            JsonArray array = item.getAsJsonArray(RWS_STRONG_REF_KEY);
+            if (array != null && array.size() > 0) {
+                String needPath = JsonAttrUtil.getStringValue(ExpressInterface.NEED_PATH_KEY, item);
+                JsonObject newLeafJson = new JsonObject();
+                JsonAttrUtil.addAllJsonValueIntoAnotherJson(item, newLeafJson);
+                JsonAttrUtil.makeEmpty(item);
+                item.addProperty(ExpressInterface.NEED_PATH_KEY, needPath);
+                item.addProperty(RWS_OPERATOR_SIGN, LogicExpressEnum.AND.name());
+                newLeafJson.remove(RWS_STRONG_REF_KEY);
+                newLeafJson.addProperty(ExpressInterface.NEED_PATH_KEY, "");
+                array.add(newLeafJson);
+                item.add(RWS_DETAILS_KEY, array);
+                array.forEach(each -> opForStrongRefNeedPath(each.getAsJsonObject(), true));
+                return;
+            }
+        }
+        if (item.has(RWS_DETAILS_KEY)) {
+            JsonArray array = item.getAsJsonArray(RWS_DETAILS_KEY);
+            array.forEach(each -> opForStrongRefNeedPath(each.getAsJsonObject(), setLeaf));
+        }
     }
 
     public static void checkFilterPatientConfig(JsonObject configJson) throws ConfigExcept {
