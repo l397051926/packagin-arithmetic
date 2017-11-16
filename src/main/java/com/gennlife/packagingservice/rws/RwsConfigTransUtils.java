@@ -41,6 +41,7 @@ public class RwsConfigTransUtils {
     public static final String RWS_STRONG_REF_KEY = "strongRef";
     public static final String RWS_NEED_PATH_KEY = "needPath";
     public static final String RWS_DETAILS_KEY = "detail";
+    public static final String RWS_VALUE_LEY = "value";
 
     public static JsonObject transRwsConditionConfig(JsonArray condition) throws ConfigExcept {
         if (JsonAttrUtil.isEmptyJsonElement(condition)) return null;
@@ -49,6 +50,10 @@ public class RwsConfigTransUtils {
         JsonAttrUtil.makeEmpty(condition);
         condition.add(onlyOne);
         opForStrongRefNeedPath(onlyOne, false);
+        String operator = JsonAttrUtil.getStringValue(RWS_OPERATOR_SIGN, onlyOne);
+        String value = JsonAttrUtil.getStringValue(RWS_VALUE_LEY, onlyOne);
+        if (StringUtil.isEmptyStr(operator) && StringUtil.isEmptyStr(value))
+            return null;
         for (JsonElement element : condition) {
             JsonObject config = new JsonObject();
             transActiveConfig(element.getAsJsonObject(), config);
@@ -132,7 +137,7 @@ public class RwsConfigTransUtils {
                 } catch (Exception e) {
                     throw new ConfigExcept("条件配置错误 ref " + ref);
                 }
-                JsonElement value = JsonAttrUtil.getJsonElement("value", configItem);
+                JsonElement value = JsonAttrUtil.getJsonElement(RWS_VALUE_LEY, configItem);
                 if (JsonAttrUtil.isEmptyJsonElement(value)) {
                     throw new ConfigExcept("条件配置错误  value is null");
                 }
@@ -214,7 +219,7 @@ public class RwsConfigTransUtils {
                 }
 
             } else {
-                JsonElement value = JsonAttrUtil.getJsonElement("value", configItem);
+                JsonElement value = JsonAttrUtil.getJsonElement(RWS_VALUE_LEY, configItem);
                 if (JsonAttrUtil.isEmptyJsonElement(value)) {
                     throw new ConfigExcept("条件配置错误  value is null" + operator);
                 }
@@ -363,10 +368,12 @@ public class RwsConfigTransUtils {
         configJson.remove("match");
         Set<String> idList = new TreeSet<>();
         JsonObject matchJson = transRwsConditionConfig(match);
-        configJson.add("match", matchJson);
-        traceForRefIdList(matchJson, idList);
-        if (filter != null) {
-            JsonObject filterJson = transRwsConditionConfig(filter);
+        if (matchJson != null) {
+            configJson.add("match", matchJson);
+            traceForRefIdList(matchJson, idList);
+        }
+        JsonObject filterJson = transRwsConditionConfig(filter);
+        if (filterJson != null) {
             configJson.add("filter", filterJson);
             traceForRefIdList(filterJson, idList);
         }
