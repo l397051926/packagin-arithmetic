@@ -19,6 +19,15 @@ import java.util.regex.Pattern;
  */
 public class StringUtil {
     private static final Logger logger = LoggerFactory.getLogger(StringUtil.class);
+
+    public static String getJoinString(Object... objs) {
+        if (objs == null || objs.length == 0) return null;
+        StringBuffer buffer = new StringBuffer();
+        for (Object obj : objs)
+            buffer.append(JsonAttrUtil.toJsonStr(obj));
+        return buffer.toString();
+    }
+
     public static boolean isInStrs(String findstr, String[] targets) {
         if (isEmptyStr(findstr) || targets == null) return false;
         for (String target : targets)
@@ -50,7 +59,7 @@ public class StringUtil {
             //把数组每一字节换成16进制连成md5字符串
             md5str = bytesToHex(buff);
         } catch (Exception e) {
-           logger.error("",e);
+            logger.error("", e);
         }
         return md5str;
     }

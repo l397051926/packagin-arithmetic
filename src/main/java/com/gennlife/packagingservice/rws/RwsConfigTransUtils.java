@@ -11,6 +11,7 @@ import com.gennlife.packagingservice.arithmetic.pretreatment.enums.InstructionOp
 import com.gennlife.packagingservice.arithmetic.pretreatment.enums.LogicExpressEnum;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
+import com.gennlife.packagingservice.rws.entity.RwsObjId;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -42,6 +43,8 @@ public class RwsConfigTransUtils {
     public static final String RWS_NEED_PATH_KEY = "needPath";
     public static final String RWS_DETAILS_KEY = "detail";
     public static final String RWS_VALUE_LEY = "value";
+    public static final String RWS_ORIGIN_ID = "rws_origin_id";
+    public static final String RWS_OBJ_HEAD = "rwsJavaObj";
 
     public static JsonObject transRwsConditionConfig(JsonArray condition) throws ConfigExcept {
         if (JsonAttrUtil.isEmptyJsonElement(condition)) return null;
@@ -88,6 +91,8 @@ public class RwsConfigTransUtils {
             if (!StringUtil.isEmptyStr(id)) idList.add(id);
             id = JsonAttrUtil.getStringValue(DYADIC_REF_ID_KEY, condition);
             if (!StringUtil.isEmptyStr(id)) idList.add(id);
+            id = JsonAttrUtil.getStringValue(RWS_ORIGIN_ID, condition);
+            if (!StringUtil.isEmptyStr(id)) idList.add(id);
         }
 
     }
@@ -114,7 +119,7 @@ public class RwsConfigTransUtils {
                 attrItem.remove(RWS_CONDITIONS_KEY);
                 String id = JsonAttrUtil.getStringValue(RwsConfigTransUtils.UNIQUE_ID_KEY, attrItem);
                 attrItem.add(RwsCountUtils.CONDTION_KEY, conditionJson);
-                if (StringUtil.isEmptyStr(id)) idList.add(id);
+                if (!StringUtil.isEmptyStr(id)) idList.add(id);
             } else if (!isStaticMethod(method)) {
                 throw new ConfigExcept("条件配置错误 : 条件组 attr 为空");
             }
@@ -200,6 +205,7 @@ public class RwsConfigTransUtils {
                         newChildJson.addProperty(RIGHT_OP_KEY, countType);
                         newChildJson.add(RIGHT_OP_PARAM_KEY, array.get(0));
                         setSimpleProp(configItem, newChildJson, newop, "", new JsonPrimitive(newValue));
+                        addExtraForDyaic(countType, array, newChildJson,array.get(0));
                         newDetail.add(newChildJson);
                     }
                     if (!JsonAttrUtil.isEmptyJsonElement(array.get(1))) {
@@ -211,6 +217,7 @@ public class RwsConfigTransUtils {
                         newChildJson.addProperty(RIGHT_OP_KEY, countType);
                         newChildJson.add(RIGHT_OP_PARAM_KEY, array.get(1));
                         setSimpleProp(configItem, newChildJson, newop, "", new JsonPrimitive(newValue));
+                        addExtraForDyaic(countType, array, newChildJson,array.get(1));
                         newDetail.add(newChildJson);
                     }
                     result.addProperty(ExpressInterface.OPERATOR_KEY, "and");
@@ -238,6 +245,50 @@ public class RwsConfigTransUtils {
             }
             result.add(ExpressInterface.DETAILS_ARRAY_KEY, JsonAttrUtil.toJsonTree(detail));
         }
+    }
+
+    private static void addExtraForDyaic(String countType, JsonArray array, JsonObject newChildJson,JsonElement param) {
+        String id = JsonAttrUtil.getStringValue(DYADIC_REF_ID_KEY, newChildJson);
+        newChildJson.addProperty(RWS_ORIGIN_ID, id);
+        String newId = getNewUniqueId(id, countType, param);
+        newChildJson.addProperty(DYADIC_REF_ID_KEY, newId);
+    }
+
+    public static boolean isObjId(String id) {
+        if (StringUtil.isEmptyStr(id)) return false;
+        return id.startsWith(RwsConfigTransUtils.RWS_OBJ_HEAD);
+    }
+
+    public static RwsObjId id2Obj(String id) {
+        try {
+            String[] strs = id.split("#");
+            RwsObjId obj = new RwsObjId();
+            obj.setId(strs[1]);
+            obj.setKey(id);
+            obj.setCountType(strs[2]);
+            JsonElement param = JsonAttrUtil.toJsonElement(strs[3]);
+            if (param != null) obj.setParam(param);
+            else obj.setParam(new JsonPrimitive(strs[3]));
+            return obj;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static String getNewUniqueId(String id, String countType, JsonElement param) {
+        StringBuffer buffer = new StringBuffer(RWS_OBJ_HEAD);
+        buffer.append("#")
+                .append(id)
+                .append("#")
+                .append(countType)
+                .append("#");
+        if (param != null && param.isJsonPrimitive())
+            buffer.append(param.getAsString());
+        else
+            buffer.append(JsonAttrUtil.toJsonStr(param));
+        buffer.append("#")
+                .append(UUID.randomUUID());
+        return buffer.toString();
     }
 
     private static void setSimpleProp(JsonObject configItem, JsonObject result, String operator, String needPath, JsonElement value) throws ConfigExcept {
