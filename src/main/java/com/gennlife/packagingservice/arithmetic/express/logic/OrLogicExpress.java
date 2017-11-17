@@ -23,7 +23,6 @@ public class OrLogicExpress extends AbstractLogicExpress {
 
     public OrLogicExpress(ConditionCheck conditionCheck, JsonArray detail, String operator, PathNode globalPathNode, String path) {
         super(conditionCheck, detail, operator, globalPathNode, path);
-
     }
 
     @Override
@@ -80,7 +79,7 @@ public class OrLogicExpress extends AbstractLogicExpress {
 
     @Override
     public PathNode getPathNodeForChild() {
-        return globalPathNode;
+        return globalPathNode.deepCopy();
     }
 
 
