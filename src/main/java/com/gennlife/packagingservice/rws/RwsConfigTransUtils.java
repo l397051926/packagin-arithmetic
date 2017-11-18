@@ -57,6 +57,15 @@ public class RwsConfigTransUtils {
         String value = JsonAttrUtil.getStringValue(RWS_VALUE_LEY, onlyOne);
         if (StringUtil.isEmptyStr(operator) && StringUtil.isEmptyStr(value))
             return null;
+        JsonArray detailCheck = JsonAttrUtil.getJsonArrayValue(RWS_DETAILS_KEY, onlyOne);
+        if (JsonAttrUtil.isEmptyJsonElement(detailCheck)) return null;
+        if (detailCheck.size() == 1) {
+            JsonObject detailOne = detailCheck.get(0).getAsJsonObject();
+            operator = JsonAttrUtil.getStringValue(RWS_OPERATOR_SIGN, detailOne);
+            value = JsonAttrUtil.getStringValue(RWS_VALUE_LEY, detailOne);
+            if (StringUtil.isEmptyStr(operator) && StringUtil.isEmptyStr(value))
+                return null;
+        }
         for (JsonElement element : condition) {
             JsonObject config = new JsonObject();
             transActiveConfig(element.getAsJsonObject(), config);
@@ -205,7 +214,7 @@ public class RwsConfigTransUtils {
                         newChildJson.addProperty(RIGHT_OP_KEY, countType);
                         newChildJson.add(RIGHT_OP_PARAM_KEY, array.get(0));
                         setSimpleProp(configItem, newChildJson, newop, "", new JsonPrimitive(newValue));
-                        addExtraForDyaic(countType, array, newChildJson,array.get(0));
+                        addExtraForDyaic(countType, array, newChildJson, array.get(0));
                         newDetail.add(newChildJson);
                     }
                     if (!JsonAttrUtil.isEmptyJsonElement(array.get(1))) {
@@ -217,7 +226,7 @@ public class RwsConfigTransUtils {
                         newChildJson.addProperty(RIGHT_OP_KEY, countType);
                         newChildJson.add(RIGHT_OP_PARAM_KEY, array.get(1));
                         setSimpleProp(configItem, newChildJson, newop, "", new JsonPrimitive(newValue));
-                        addExtraForDyaic(countType, array, newChildJson,array.get(1));
+                        addExtraForDyaic(countType, array, newChildJson, array.get(1));
                         newDetail.add(newChildJson);
                     }
                     result.addProperty(ExpressInterface.OPERATOR_KEY, "and");
@@ -247,7 +256,7 @@ public class RwsConfigTransUtils {
         }
     }
 
-    private static void addExtraForDyaic(String countType, JsonArray array, JsonObject newChildJson,JsonElement param) {
+    private static void addExtraForDyaic(String countType, JsonArray array, JsonObject newChildJson, JsonElement param) {
         String id = JsonAttrUtil.getStringValue(DYADIC_REF_ID_KEY, newChildJson);
         newChildJson.addProperty(RWS_ORIGIN_ID, id);
         String newId = getNewUniqueId(id, countType, param);
