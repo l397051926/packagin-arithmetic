@@ -24,7 +24,7 @@ import static com.gennlife.packagingservice.rws.RwsConfigTransUtils.RWS_STATIC_V
 public class RwsCountUtils {
     public static final int ACTIVITY = 1;//事件
     public static final int QUOTA = 2;//指标
-    public static final int FILTER=3;//入排
+    public static final int FILTER = 3;//入排
     public static String SORT_PATH_KEY = "sortKey";
     public static String METHOD_PARAM_KEYS = "functionParam";
     public static final String CONDTION_KEY = "condtion";
@@ -46,9 +46,8 @@ public class RwsCountUtils {
 
         JsonObject valueConfig = attr.get(0).getAsJsonObject();
         int activeType = JsonAttrUtil.getJsonElement(ACTIVE_TYPE_KEY, config).getAsInt();
-        if(activeType!=ACTIVITY && activeType!=QUOTA)
-        {
-            throw new ConfigExcept("activeType must be 1 or 2 ,now: "+activeType);
+        if (activeType != ACTIVITY && activeType != QUOTA) {
+            throw new ConfigExcept("activeType must be 1 or 2 ,now: " + activeType);
         }
         JsonObject condtion = JsonAttrUtil.getJsonObjectValue(CONDTION_KEY, valueConfig);
         ConditionCheck conditionCheck = new ConditionCheck(condtion);
@@ -63,10 +62,7 @@ public class RwsCountUtils {
 
         String sortKey = JsonAttrUtil.getStringValue(SORT_PATH_KEY, config);
         List<FindIndexModel<JsonElement>> countList = null;
-        if (isActivity(activeType)) {
-            countList = ObtainUtils.getSortResultByAscDate(patient, find, sortKey, countPath);
-        } else
-            countList = PathNode.getFindIndexModels(patient, find, countPath);
+        countList = ObtainUtils.getSortResultByAscDate(patient, find, sortKey, countPath);
         if (countList == null || countList.size() == 0) {
             return getEmptyMatch(activeType);
         }
