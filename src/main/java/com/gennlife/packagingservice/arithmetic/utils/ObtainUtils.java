@@ -92,7 +92,7 @@ public class ObtainUtils {
         return countList;
     }
 
-    public static <T> List<FindIndexModel<T>> sort(List<FindIndexModel<T>> list, final boolean asc, FormatArrayItem formatArrayItem) {
+    public static <T> LinkedList<FindIndexModel<T>> sort(List<FindIndexModel<T>> list, final boolean asc, FormatArrayItem formatArrayItem) {
         if (list == null || list.size() == 0) return null;
         if (formatArrayItem == null) return null;
         Set<FindIndexModel<T>> sort = new TreeSet<>(new Comparator<FindIndexModel<T>>() {
@@ -111,7 +111,7 @@ public class ObtainUtils {
             if (d != null) sort.add(item);
             else empty.add(item);
         }
-        List<FindIndexModel<T>> result = new LinkedList<>();
+        LinkedList<FindIndexModel<T>> result = new LinkedList<>();
         result.addAll(sort);
         result.addAll(empty);
         return result;
@@ -277,18 +277,15 @@ public class ObtainUtils {
             } else
                 sortList.addAll(tmp);
         }
-        sort(sortList, true, StringDateFormatArrayItem.INSTACE);
-
+        sortList = sort(sortList, true, StringDateFormatArrayItem.INSTACE);
+        if (sortList == null) return null;
         if (isInTheSameGroup) {
             for (FindIndexModel<JsonElement> sortItem : sortList) {
                 LinkedList<PathItem> findItem = sortItem.getPathItem();
                 LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(findItem, countPath), patient);
                 resultList.addAll(tmp);
             }
-            for (LinkedList<PathItem> pathitem : pathItems) {
-                LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(pathitem, countPath), patient);
-                if (tmp != null) resultList.addAll(tmp);
-            }
+            addEmpty(patient, countPath, emptyPathItems, resultList);
             return resultList;
         }
         TreeSet<LinkedList<PathItem>> countPathItemSet = new TreeSet<>(COMPARATOR_PATHITEM);
@@ -309,11 +306,15 @@ public class ObtainUtils {
             }
         }
         //add empty list
-        for (LinkedList<PathItem> emptyItem : countPathItemSet) {
-            LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(emptyItem, countPath), patient);
+        addEmpty(patient, countPath, emptyPathItems, resultList);
+        return resultList;
+    }
+
+    private static void addEmpty(LinkedList<FindIndexModel<JsonElement>> patient, String countPath, LinkedList<LinkedList<PathItem>> emptyPathItems, LinkedList<FindIndexModel<JsonElement>> resultList) {
+        for (LinkedList<PathItem> pathitem : emptyPathItems) {
+            LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(pathitem, countPath), patient);
             if (tmp != null) resultList.addAll(tmp);
         }
-        return resultList;
     }
 
     public static LinkedList<FindIndexModel<JsonElement>> getSortResultByAscDate(JsonObject patient, PathNode find, String sortKey, String countPath) {
