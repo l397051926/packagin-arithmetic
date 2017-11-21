@@ -49,10 +49,15 @@ public class RwsCountUtils {
         if (activeType != ACTIVITY && activeType != QUOTA) {
             throw new ConfigExcept("activeType must be 1 or 2 ,now: " + activeType);
         }
+        PathNode find = null;
         JsonObject condtion = JsonAttrUtil.getJsonObjectValue(CONDTION_KEY, valueConfig);
-        ConditionCheck conditionCheck = new ConditionCheck(condtion);
-        conditionCheck.addData(RwsConfigTransUtils.RWS_STATIC_MAP_TABLE_NAME, rwsRef);
-        PathNode find = conditionCheck.getPathItemsByPathNode(patient);
+        if (!JsonAttrUtil.isEmptyJsonElement(condtion)) {
+            ConditionCheck conditionCheck = new ConditionCheck(condtion);
+            conditionCheck.addData(RwsConfigTransUtils.RWS_STATIC_MAP_TABLE_NAME, rwsRef);
+            find = conditionCheck.getPathItemsByPathNode(patient);
+        } else {
+            find = new PathNode();
+        }
         if (find == null) {
             if (isActivity(activeType))
                 return getEmptyUnMatchForActive();

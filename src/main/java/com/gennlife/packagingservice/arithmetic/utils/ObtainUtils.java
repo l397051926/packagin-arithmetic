@@ -68,7 +68,7 @@ public class ObtainUtils {
                 result.addAll(list);
                 return result;
             } else {
-                if (type == ArrayOpEnum.AFTERLIST) {
+                if (type == ArrayOpEnum.PREVIOUSLIST) {
                     return list.subList(0, need);
                 } else {
                     return list.subList(list.size() - need, list.size());
@@ -92,9 +92,9 @@ public class ObtainUtils {
         return countList;
     }
 
-    public static <T> LinkedList<FindIndexModel<T>> sort(List<FindIndexModel<T>> list, final boolean asc, FormatArrayItem formatArrayItem) {
-        if (list == null || list.size() == 0) return null;
-        if (formatArrayItem == null) return null;
+    public static <T> LinkedList<FindIndexModel<T>> sort(LinkedList<FindIndexModel<T>> list, final boolean asc, FormatArrayItem formatArrayItem) {
+        if (list == null || list.size() == 0) return list;
+        if (formatArrayItem == null) return list;
         Set<FindIndexModel<T>> sort = new TreeSet<>(new Comparator<FindIndexModel<T>>() {
             @Override
             public int compare(FindIndexModel<T> o1, FindIndexModel<T> o2) {
@@ -278,7 +278,7 @@ public class ObtainUtils {
                 sortList.addAll(tmp);
         }
         sortList = sort(sortList, true, StringDateFormatArrayItem.INSTACE);
-        if (sortList == null) return null;
+        if (sortList == null) sortList = new LinkedList<>();
         if (isInTheSameGroup) {
             for (FindIndexModel<JsonElement> sortItem : sortList) {
                 LinkedList<PathItem> findItem = sortItem.getPathItem();
