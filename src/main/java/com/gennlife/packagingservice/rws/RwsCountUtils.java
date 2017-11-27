@@ -96,8 +96,8 @@ public class RwsCountUtils {
                     matchPathItem.add(matchItem.getPathItem());
                 }
                 PathNode mergeNode = PathNode.getPathNodeFromPath(matchPathItem);
-                find.mergeForLeaveAndAddNew(mergeNode, true);
-                return new CountValueEntity(match.size(), true).setPath(find);
+                mergeNode.mergeForLeaveAndAddNew(find, true);
+                return new CountValueEntity(match.size(), true).setPath(mergeNode);
 
             } else {
                 JsonElement valueElem = match.get(0).getValue();

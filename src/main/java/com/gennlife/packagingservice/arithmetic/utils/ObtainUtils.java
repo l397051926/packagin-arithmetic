@@ -26,56 +26,62 @@ public class ObtainUtils {
     public static final Logger logger = LoggerFactory.getLogger(ObtainUtils.class);
 
     public static List<FindIndexModel<JsonElement>> obtainList(List<FindIndexModel<JsonElement>> list, ArrayOpEnum type, Integer... index) {
-        if (list == null || list.size() == 0) return list;
-        if (type == ArrayOpEnum.ALL)
-            return list;
-        LinkedList<FindIndexModel<JsonElement>> result = new LinkedList<>();
-        if (type == ArrayOpEnum.LAST) {
-            if (list instanceof LinkedList) {
-                result.add(((LinkedList<FindIndexModel<JsonElement>>) list).getLast());
-            } else
-                result.add(list.get(list.size() - 1));
-            return result;
-        }
-        if (type == ArrayOpEnum.FIRST) {
-            result.add(list.get(0));
-            return result;
-        }
-        LinkedList<Integer> integers = new LinkedList<>();
-        if (index != null) {
-            for (int i : index) {
-                if (i > 0) integers.add(i);
-            }
-        }
-        if (integers.size() == 0) {
-            logger.error("not find param");
-            return null;
-        }
-        if (type == ArrayOpEnum.INDEX || type == ArrayOpEnum.REVERSEINDEX) {
-            int need = index[0];
-            if (need > list.size()) return null;
-            if (type == ArrayOpEnum.INDEX)
-                result.add(list.get(need - 1));
-            else {
-                result.add(list.get(list.size() - 1 - need));
-            }
-            return result;
-        }
-        if (type == ArrayOpEnum.AFTERLIST || type == ArrayOpEnum.PREVIOUSLIST) {
-            int length = list.size();
-            int need = index[0];
-            if (length <= need) {
-                result.addAll(list);
+        try {
+            if (list == null || list.size() == 0) return list;
+            if (type == ArrayOpEnum.ALL)
+                return list;
+            LinkedList<FindIndexModel<JsonElement>> result = new LinkedList<>();
+            if (type == ArrayOpEnum.LAST) {
+                if (list instanceof LinkedList) {
+                    result.add(((LinkedList<FindIndexModel<JsonElement>>) list).getLast());
+                } else
+                    result.add(list.get(list.size() - 1));
                 return result;
-            } else {
-                if (type == ArrayOpEnum.PREVIOUSLIST) {
-                    return list.subList(0, need);
-                } else {
-                    return list.subList(list.size() - need, list.size());
-
+            }
+            if (type == ArrayOpEnum.FIRST) {
+                result.add(list.get(0));
+                return result;
+            }
+            LinkedList<Integer> integers = new LinkedList<>();
+            if (index != null) {
+                for (int i : index) {
+                    if (i > 0) integers.add(i);
                 }
             }
+            if (integers.size() == 0) {
+                logger.error("not find param");
+                return null;
+            }
+            if (type == ArrayOpEnum.INDEX || type == ArrayOpEnum.REVERSEINDEX) {
+                int need = index[0];
+                //正的 need 最小为1
+                if (need > list.size()) return null;
+                if (type == ArrayOpEnum.INDEX)
+                    result.add(list.get(need - 1));
+                else {
+                    result.add(list.get(list.size() - need));
+                }
+                return result;
+            }
+            if (type == ArrayOpEnum.AFTERLIST || type == ArrayOpEnum.PREVIOUSLIST) {
+                int length = list.size();
+                int need = index[0];
+                if (length <= need) {
+                    result.addAll(list);
+                    return result;
+                } else {
+                    if (type == ArrayOpEnum.PREVIOUSLIST) {
+                        return list.subList(0, need);
+                    } else {
+                        return list.subList(list.size() - need, list.size());
 
+                    }
+                }
+
+            }
+        } catch (IndexOutOfBoundsException err) {
+            logger.warn("", err);
+            return null;
         }
         return null;
 
@@ -257,12 +263,6 @@ public class ObtainUtils {
         return NumberFormatArrayItem.INSTANSE.format(item);
     }
 
-    private static final Comparator<LinkedList<PathItem>> COMPARATOR_PATHITEM = new Comparator<LinkedList<PathItem>>() {
-        @Override
-        public int compare(LinkedList<PathItem> o1, LinkedList<PathItem> o2) {
-            return AbstractPath.getPath(o1).compareTo(AbstractPath.getPath(o2));
-        }
-    };
 
     public static LinkedList<FindIndexModel<JsonElement>> getSortResultByAscDate(LinkedList<FindIndexModel<JsonElement>> patient, PathNode find, String sortKey, String countPath) {
         LinkedList<LinkedList<PathItem>> emptyPathItems = new LinkedList<>();
@@ -288,17 +288,21 @@ public class ObtainUtils {
             addEmpty(patient, countPath, emptyPathItems, resultList);
             return resultList;
         }
-        TreeSet<LinkedList<PathItem>> countPathItemSet = new TreeSet<>(COMPARATOR_PATHITEM);
-        countPathItemSet.addAll(PathNode.getPathItem(find, countPath));
+        LinkedList<String> countPathItemSet = new LinkedList<>();
+        LinkedList<String> addPathItem = new LinkedList<>();
+        for (LinkedList<PathItem> item : PathNode.getPathItem(find, countPath)) {
+            countPathItemSet.add(AbstractPath.getPath(item));
+        }
         // add sort value
         for (FindIndexModel<JsonElement> sortItem : sortList) {
             LinkedList<PathItem> findItem = sortItem.getPathItem();
             LinkedList<FindIndexModel<JsonElement>> tmp = JsonAttrUtil.getAllValueWithAnalisePath(AbstractPath.getPath(findItem, countPath), patient);
             if (tmp != null) {
                 for (FindIndexModel<JsonElement> tmpJson : tmp) {
-                    if (countPathItemSet.contains(tmpJson.getPathItem())) {
-                        countPathItemSet.remove(tmpJson.getPathItem());
-                        if (!hasContainPathItem(resultList, tmpJson)) {
+                    String path = AbstractPath.getPath(tmpJson.getPathItem());
+                    if (checkPath(path, countPathItemSet)) {
+                        if (!addPathItem.contains(path)) {
+                            addPathItem.add(path);
                             resultList.add(tmpJson);
                         }
                     }
@@ -308,6 +312,18 @@ public class ObtainUtils {
         //add empty list
         addEmpty(patient, countPath, emptyPathItems, resultList);
         return resultList;
+    }
+
+    private static boolean checkPath(String path, LinkedList<String> countPathItemSet) {
+        if (StringUtil.isEmptyStr(path)) return false;
+        if (countPathItemSet == null || countPathItemSet.size() == 0) return false;
+        for (String item : countPathItemSet) {
+            if (path.startsWith(item)) {
+                return true;
+            }
+        }
+        return false;
+
     }
 
     private static void addEmpty(LinkedList<FindIndexModel<JsonElement>> patient, String countPath, LinkedList<LinkedList<PathItem>> emptyPathItems, LinkedList<FindIndexModel<JsonElement>> resultList) {
@@ -333,13 +349,6 @@ public class ObtainUtils {
         return isInTheSameGroup;
     }
 
-    public static boolean hasContainPathItem(List<FindIndexModel<JsonElement>> list, FindIndexModel<JsonElement> item) {
-        if (list == null || list.isEmpty()) return false;
-        for (FindIndexModel<JsonElement> listItem : list) {
-            if (COMPARATOR_PATHITEM.compare(listItem.getPathItem(), item.getPathItem()) == 0) return true;
-        }
-        return false;
-    }
 
     public static LinkedList<FindIndexModel<JsonElement>> filterByTime(LinkedList<FindIndexModel<JsonElement>> list, String dateTime, boolean needEqual, boolean needless) {
         return JsonAttrUtil.compare(list, dateTime, needEqual, needless);

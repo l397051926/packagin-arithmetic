@@ -8,4 +8,5 @@ public interface SupportNotOperatorInterface extends InstructionOperatorInterfac
      * 取反
      * */
     public void setNot(boolean not);
+    boolean isNot();
 }

@@ -51,7 +51,7 @@ public abstract class AbstractDirectOperandCheck implements SupportNotOperatorIn
             if (hasError) {
                 return false;
             }
-            if (isNot) return !findFlag;
+            //if (isNot) return !findFlag;
             return findFlag;
         } catch (Exception e) {
             logger.error("", e);
@@ -65,7 +65,7 @@ public abstract class AbstractDirectOperandCheck implements SupportNotOperatorIn
     public final boolean isEmptyListOK() {
         boolean findFlag = allEmptyList();
         if (isNot) return !findFlag;
-        else return findFlag;
+        return findFlag;
     }
 
     public abstract boolean allEmptyList();
@@ -82,5 +82,10 @@ public abstract class AbstractDirectOperandCheck implements SupportNotOperatorIn
 
     public boolean allowJsonObject() {
         return false;
+    }
+
+    @Override
+    public boolean isNot() {
+        return isNot;
     }
 }

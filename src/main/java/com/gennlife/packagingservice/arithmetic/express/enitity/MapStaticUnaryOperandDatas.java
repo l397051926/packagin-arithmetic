@@ -28,6 +28,7 @@ public class MapStaticUnaryOperandDatas extends TableStaticDataWrapper implement
     public void parse(AbstractDirectOperandCheck op) {
         if (op == null) return;
         boolean match = op.isMatch(getValue());
+        if (op.isNot()) match = !match;
         if (match) this.findPathNode = contextNode;
         else this.findPathNode = null;
 
