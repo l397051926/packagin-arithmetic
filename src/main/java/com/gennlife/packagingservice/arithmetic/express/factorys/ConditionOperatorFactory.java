@@ -47,30 +47,24 @@ public class ConditionOperatorFactory {
         InstructionOperatorEnum matchEnum = check(key);
         InstructionOperatorInterface result = null;
         boolean isNot = false;
-        if (matchEnum==InstructionOperatorEnum.ISNULL) {
-            //非空
-            NullCompareOperator op = new NullCompareOperator();
-            op.setNot(true);
-            return op;
-        }
         if (key.startsWith("!")) {
             isNot = true;
             key = key.substring(1);
         }
-        if (matchEnum==InstructionOperatorEnum.EQUAL) result = new ConditionEualsIgnoreCase();
-        else if (matchEnum==InstructionOperatorEnum.CONTAIN) result = new ConditionContainIgnoreCase();
-        else if (matchEnum==InstructionOperatorEnum.REGEX) result = new ConditionRegex();
-        else if (matchEnum==InstructionOperatorEnum.ISNULL) result = new NullCompareOperator();
+        if (matchEnum == InstructionOperatorEnum.EQUAL) result = new ConditionEualsIgnoreCase();
+        else if (matchEnum == InstructionOperatorEnum.CONTAIN) result = new ConditionContainIgnoreCase();
+        else if (matchEnum == InstructionOperatorEnum.REGEX) result = new ConditionRegex();
+        else if (matchEnum == InstructionOperatorEnum.ISNULL) result = new NullCompareOperator();
             //包含全部
-        else if (matchEnum==InstructionOperatorEnum.CONTAINALL) {
+        else if (matchEnum == InstructionOperatorEnum.CONTAINALL) {
             ConditionContainIgnoreCase op = new ConditionContainIgnoreCase();
             op.setMatchAll(true);
             result = op;
-        } else if (matchEnum==InstructionOperatorEnum.DATEHMSCOMPARE) {
+        } else if (matchEnum == InstructionOperatorEnum.DATEHMSCOMPARE) {
             result = new DateHmsCompareOperator();
-        } else if (matchEnum==InstructionOperatorEnum.SIMPLENUMBER) {
+        } else if (matchEnum == InstructionOperatorEnum.SIMPLENUMBER) {
             result = new SimpleNumberOperator();
-        } else if (matchEnum==InstructionOperatorEnum.SIMPLEDATE) {
+        } else if (matchEnum == InstructionOperatorEnum.SIMPLEDATE) {
             result = new SimpleDateOperator();
         }
         if (result != null && isNot) {

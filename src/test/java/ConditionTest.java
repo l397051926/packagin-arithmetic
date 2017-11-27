@@ -102,5 +102,17 @@ public class ConditionTest {
     private String getSearchUrl() {
         return "http://10.0.2.162:8989/search-server/search";
     }
+    @Test
+    public void testNull()
+    {
+        String condition=FileUtil.readFile("a.json");
+        String value=FileUtil.readFile("b.json");
+        JsonObject valueJson=JsonAttrUtil.toJsonObject(value);
+        JsonObject conditionJson=JsonAttrUtil.toJsonObject(condition);
+        ConditionCheck conditionCheck=new ConditionCheck(conditionJson);
+        PathNode result = conditionCheck.getPathItemsByPathNode(valueJson);
+        result=result;
 
+
+    }
 }
