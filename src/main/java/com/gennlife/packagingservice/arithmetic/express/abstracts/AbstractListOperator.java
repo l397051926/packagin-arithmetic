@@ -27,7 +27,7 @@ public abstract class AbstractListOperator extends DyadicOperationRightIsStaticV
 
     public final void setTarget(String target) {
         if (StringUtil.isEmptyStr(target)) {
-            logger.error("can't be null ");
+            //logger.error("can't be null ");
             setHasError(true);
             return;
         }

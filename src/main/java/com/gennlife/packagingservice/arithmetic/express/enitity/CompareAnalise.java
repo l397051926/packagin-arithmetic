@@ -66,7 +66,7 @@ public class CompareAnalise<T> {
     public void parse(String target) {
         if (StringUtil.isEmptyStr(target)) {
             setHasError(true);
-            logger.error("比较符的target 为空");
+            //logger.error("比较符的target 为空");
             return;
         }
         String[] items = target.trim().split(";");
@@ -87,14 +87,14 @@ public class CompareAnalise<T> {
                     data = format.format(item);
                 } catch (Exception e) {
                     data = null;
-                    logger.error("", e);
+                    //logger.error("", e);
                     setHasError(true);
                     break;
                 }
         }
         if (i < 1) {
             setHasError(true);
-            logger.error("length must >=2 " + target);
+            //logger.error("length must >=2 " + target);
             return;
         }
         if (data == null && !isHasError()) {

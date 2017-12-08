@@ -51,7 +51,7 @@ public class SimpleDateOperator extends DyadicOperationRightIsStaticValue {
         if (source.isJsonPrimitive()) {
             return check(source.getAsString());
         }
-        logger.error("only support for String");
+        //logger.error("only support for String");
         setHasError(true);
         return false;
     }
@@ -95,7 +95,7 @@ public class SimpleDateOperator extends DyadicOperationRightIsStaticValue {
             if (value == null || value.isJsonNull()) return staticValue;
             return new JsonPrimitive(value.getAsString() + ";" + staticValue.getAsString());
         } catch (Exception e) {
-            logger.error("config error " + value + " " + staticValue);
+            //logger.error("config error " + value + " " + staticValue);
             setHasError(true);
         }
         return null;

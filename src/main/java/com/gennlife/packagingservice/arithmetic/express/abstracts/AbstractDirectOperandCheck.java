@@ -54,7 +54,7 @@ public abstract class AbstractDirectOperandCheck implements SupportNotOperatorIn
             //if (isNot) return !findFlag;
             return findFlag;
         } catch (Exception e) {
-            logger.error("", e);
+            //logger.error("", e);
             setHasError(true);
             return false;
         }

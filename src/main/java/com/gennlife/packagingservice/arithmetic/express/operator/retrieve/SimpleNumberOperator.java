@@ -44,7 +44,7 @@ public class SimpleNumberOperator extends DyadicOperationRightIsStaticValue {
         try {
             sourcenum = Double.valueOf(source);
         } catch (Exception e) {
-            logger.error("error in SimpleNumberOperator " + source);
+            //logger.error("error in SimpleNumberOperator " + source);
             setHasError(true);
             return false;
         }
@@ -60,7 +60,7 @@ public class SimpleNumberOperator extends DyadicOperationRightIsStaticValue {
             return check(source.getAsString());
         }
         setHasError(true);
-        logger.error("unsupport for not number ");
+       // logger.error("unsupport for not number ");
         return false;
     }
 
@@ -82,7 +82,7 @@ public class SimpleNumberOperator extends DyadicOperationRightIsStaticValue {
             }
             return new JsonPrimitive(value.getAsString() + ";" + staticValue.getAsString());
         } catch (Exception e) {
-            logger.error("merge error " + value + " " + staticValue);
+           // logger.error("merge error " + value + " " + staticValue);
             setHasError(true);
         }
         return null;
