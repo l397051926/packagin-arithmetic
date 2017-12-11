@@ -19,7 +19,7 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.5</version>
-            <optional>true</optional>
+           
         </dependency>
         <dependency>
             <groupId>org.xerial.snappy</groupId>
@@ -32,25 +32,25 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>4.5.3</version>
-            <optional>true</optional>
+           
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5</version>
-            <optional>true</optional>
+           
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.8.0-beta0</version>
-            <optional>true</optional>
+           
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>1.2.3</version>
-            <optional>true</optional>
+           <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
