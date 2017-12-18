@@ -40,14 +40,18 @@ public class DateUtil {
     }
 
     public static String getDateStr_ymd(Date date) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat format = new SimpleDateFormat(getymd());
+        return format.format(date);
+    }
+    public static String format(Date date,String formatStr) {
+        SimpleDateFormat format = new SimpleDateFormat(formatStr);
         return format.format(date);
     }
 
     public static Date getDate_ymd(String datestr) {
         if (StringUtil.isEmptyStr(datestr)) return null;
         try {
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat format = new SimpleDateFormat(getymd());
             return format.parse(datestr);
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,7 +61,7 @@ public class DateUtil {
 
     public static Date getDate_ymdhms(String datestr) {
         try {
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat format = new SimpleDateFormat(getYmd_hms());
             return format.parse(datestr);
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,8 +70,8 @@ public class DateUtil {
     }
 
     public static String formatDateFromDate(Date date) {
-        SimpleDateFormat dateFormat_hms = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormat_hms = new SimpleDateFormat(getYmd_hms());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(getymd());
         try {
             return dateFormat_hms.format(date);
         } catch (Exception localException) {
@@ -77,6 +81,10 @@ public class DateUtil {
             }
         }
         return dateFormat_hms.format(new Date());
+    }
+
+    public static String getYmd_hms() {
+        return "yyyy-MM-dd HH:mm:ss";
     }
 
     public static String getDateByOperateDay(String dateStr, int days, boolean addFlag) {
@@ -90,14 +98,14 @@ public class DateUtil {
         } else {
             calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) - days);
         }
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat df = new SimpleDateFormat(getYmd_hms());
         String result = df.format(calendar.getTime());
         return result;
     }
 
     public static Date getDate(String date) {
-        SimpleDateFormat dateFormat_hms = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormat_hms = new SimpleDateFormat(getYmd_hms());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(getymd());
         SimpleDateFormat dateFormatYear = new SimpleDateFormat("yyyy");
         Date value = null;
         try {
@@ -122,6 +130,10 @@ public class DateUtil {
             }
         }
         return value;
+    }
+
+    public static String getymd() {
+        return "yyyy-MM-dd";
     }
 
     public static boolean isDate(Object object) {
@@ -157,7 +169,7 @@ public class DateUtil {
     }
 
     public static String getNowDataYMDHMDSForFileName() {
-        SimpleDateFormat dateFormat_hms = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat dateFormat_hms = new SimpleDateFormat(getYmd_hms());
         return dateFormat_hms.format(new Date()).replace("-", "_").replace(" ", "_").replace(":", "_");
     }
 }

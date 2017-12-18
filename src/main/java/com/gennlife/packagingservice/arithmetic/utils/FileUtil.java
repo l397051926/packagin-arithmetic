@@ -10,6 +10,33 @@ import java.io.*;
  */
 public class FileUtil {
     private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
+    public static String readFileByPath(String file)
+    {
+        InputStream inputStream =  null;
+        String content = null;
+        try {
+            inputStream = new FileInputStream(file);
+            if(inputStream == null){
+                logger.error("inputStream=null");
+                logger.error(file);
+                throw new IOException();
+            }
+            content = readString(new InputStreamReader(inputStream, "utf-8"));
+        } catch (IOException e) {
+            logger.error("读取文件出错",e);
+            return null;
+        }finally {
+            try {
+                if(inputStream != null){
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                logger.error("", e);
+                return null;
+            }
+        }
+        return content;
+    }
     public static String readFile(String fileName){
         InputStream inputStream =  null;
         String content = null;
