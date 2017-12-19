@@ -28,8 +28,9 @@ public class NullCompareOperator extends DyadicOperationRightIsStaticValue {
                     return false;
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
