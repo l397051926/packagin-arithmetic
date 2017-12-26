@@ -6,6 +6,7 @@ import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractOperan
 import com.gennlife.packagingservice.arithmetic.express.abstracts.ExpressInterface;
 import com.gennlife.packagingservice.arithmetic.express.exceptions.PathNodeError;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.OperandDatasForEachCheckInterface;
+import com.gennlife.packagingservice.arithmetic.express.status.AbsFindIndexModelFilter;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.gennlife.packagingservice.arithmetic.utils.ObtainUtils;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
@@ -46,12 +47,7 @@ public class DirectOperandDatas extends AbstractOperandDatasWrapper implements O
         if (findindex == null) {
             throw new PathNodeError(" findindex must not null ");
         }
-        LinkedList<LinkedList<PathItem>> lastFindindex = findindex;
-        LinkedList<FindIndexModel<JsonElement>> datas = conditionCheck.getOriginData();
-        for (LinkedList<PathItem> findindexItem : lastFindindex) {
-            detailkey = FindIndexModel.buildPathByPathItem(detailkey, findindexItem);
-            elements = FindIndexModel.getAllValue(detailkey, datas, elements);
-        }
+
 
     }
 
@@ -89,29 +85,41 @@ public class DirectOperandDatas extends AbstractOperandDatasWrapper implements O
     @Override
     public void parse(AbstractDirectOperandCheck op) {
         if (op == null) return;
-        if (elements == null || elements.size() == 0) {
-            if (op.isEmptyListOK()) {
-                this.findPathNode = getContextNode();
-                return;
-            } else {
-                this.findPathNode = null;
-            }
-        }
-        LinkedList<LinkedList<PathItem>> result = new LinkedList<>();
-        if (elements != null) {
-            for (FindIndexModel<JsonElement> item : elements) {
-                boolean find = op.isMatch(item.getValue());
+        LinkedList<FindIndexModel<JsonElement>> datas = conditionCheck.getOriginData();
+        AbsFindIndexModelFilter filter = new AbsFindIndexModelFilter() {
+            @Override
+            public boolean isMatch(JsonElement target) {
+                boolean find = op.isMatch(target);
                 if (op.isNot()) {
                     if (allNot) {
-                        this.findPathNode = null;
-                        return;
+                        makeBreak();
+                        clearResult();
+                        return false;
                     }
                     find = !find;
                 }
-                if (find) result.add(FindIndexModel.getFindPath(item));
+                return find;
             }
+        };
+        for (LinkedList<PathItem> findindexItem : findindex) {
+            if (filter.isBreak()) break;
+            detailkey = FindIndexModel.buildPathByPathItem(detailkey, findindexItem);
+            elements = FindIndexModel.getAllValueByFilter(detailkey, datas, null, filter);
         }
-        this.findPathNode = PathNode.getPathNodeFromPath(result);
+        if (elements == null || elements.size() == 0) {
+            if (op.isEmptyListOK()) {
+                this.findPathNode = getContextNode();
+            } else {
+                this.findPathNode = null;
+            }
+            return;
+        } else {
+            LinkedList<LinkedList<PathItem>> result = new LinkedList<>();
+            for (FindIndexModel<JsonElement> item : elements) {
+                result.add(FindIndexModel.getFindPath(item));
+            }
+            this.findPathNode = PathNode.getPathNodeFromPath(result);
+        }
     }
 
 

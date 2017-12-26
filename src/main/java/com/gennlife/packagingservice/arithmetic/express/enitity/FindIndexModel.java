@@ -3,6 +3,8 @@ package com.gennlife.packagingservice.arithmetic.express.enitity;
 
 import com.gennlife.packagingservice.arithmetic.express.ConditionCheck;
 import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractPath;
+import com.gennlife.packagingservice.arithmetic.express.status.AbsFindIndexModelFilter;
+import com.gennlife.packagingservice.arithmetic.express.status.NoFilter;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
 import com.google.gson.JsonElement;
@@ -24,13 +26,14 @@ public class FindIndexModel<T> {
     private static Logger logger = LoggerFactory.getLogger(FindIndexModel.class);
     private boolean leaf;
     transient private FindIndexModel p;
+    public static final int INDEX_EMPYT = -1;
     private int index;
     private String key;
     private T value; //值
     private transient LinkedList<PathItem> pathList;
 
     public FindIndexModel() {
-        this.index = -1;
+        this.index = INDEX_EMPYT;
         this.leaf = false;
     }
 
@@ -51,11 +54,17 @@ public class FindIndexModel<T> {
     }
 
     public static LinkedList<FindIndexModel<JsonElement>> getAllValue(String detailkey, List<FindIndexModel<JsonElement>> findIndexModels, LinkedList<FindIndexModel<JsonElement>> init) {
+        return getAllValueByFilter(detailkey, findIndexModels, init, null);
+    }
+
+    public static LinkedList<FindIndexModel<JsonElement>> getAllValueByFilter(String detailkey, List<FindIndexModel<JsonElement>> findIndexModels, LinkedList<FindIndexModel<JsonElement>> init, AbsFindIndexModelFilter filter) {
         if (findIndexModels == null || findIndexModels.size() == 0) return null;
         String key = removeUncareTag(detailkey);
         String[] keys = null;
-        if (init == null) init = new LinkedList<>();
+        if (filter == null) filter = new NoFilter();
+        filter.setInitList(init);
         for (FindIndexModel<JsonElement> findIndexModelItem : findIndexModels) {
+            if (filter.isBreak()) break;
             LinkedList<FindIndexModel<JsonElement>> pathList = new LinkedList<>();
             pathList.push(findIndexModelItem);
             while (findIndexModelItem.getP() != null && !StringUtil.isEmptyStr(findIndexModelItem.getKey())) {
@@ -92,12 +101,17 @@ public class FindIndexModel<T> {
                 for (int j = i + 1; j < keys.length; j++)
                     newPath = newPath + "." + keys[j];
             }
+
             if (StringUtil.isEmptyStr(newPath)) {
-                init.add(find);
-            } else
-                init.addAll(JsonAttrUtil.getAllValueWithAnalisePath(newPath, find));
+                {
+                    filter.filterAndAdd(find);
+                }
+            } else {
+                JsonAttrUtil.getAllValueWithAnalisePath(newPath, find, filter);
+            }
         }
-        return init;
+        return filter.getMatchData();
+
     }
 
     public static LinkedList<FindIndexModel<JsonElement>> getAllValue(String detailkey, List<FindIndexModel<JsonElement>> findIndexModels) {

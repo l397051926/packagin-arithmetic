@@ -4,6 +4,8 @@ import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractPath;
 import com.gennlife.packagingservice.arithmetic.express.enitity.FindIndexModel;
 import com.gennlife.packagingservice.arithmetic.express.enitity.SplitStrForKeyAndIndex;
 import com.gennlife.packagingservice.arithmetic.express.exceptions.PathError;
+import com.gennlife.packagingservice.arithmetic.express.status.AbsFindIndexModelFilter;
+import com.gennlife.packagingservice.arithmetic.express.status.NoFilter;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -643,18 +645,20 @@ public class JsonAttrUtil {
     }
 
     public static LinkedList<FindIndexModel<JsonElement>> getAllValueWithAnalisePath(String path, JsonElement data, String key) {
+        FindIndexModel<JsonElement> begin = jsonElement2FindIndexModel(data, key);
+        return getAllValueWithAnalisePath(path, begin);
+    }
+
+    public static FindIndexModel<JsonElement> jsonElement2FindIndexModel(JsonElement data, String key) {
         FindIndexModel<JsonElement> begin = new FindIndexModel<>();
         begin.setValue(data);
         begin.setLeaf(true);
         begin.setKey(key);
-        return getAllValueWithAnalisePath(path, begin);
+        return begin;
     }
 
     public static LinkedList<FindIndexModel<JsonElement>> getAllValueWithAnalisePathByHeadPath(String path, JsonElement data, AbstractPath headPath) {
-        FindIndexModel<JsonElement> begin = new FindIndexModel<>();
-        begin.setValue(data);
-        begin.setLeaf(true);
-        begin.setKey(headPath.getKey());
+        FindIndexModel<JsonElement> begin = jsonElement2FindIndexModel(data, headPath.getKey());
         begin.setIndex(headPath.getIndex());
         return getAllValueWithAnalisePath(path, begin);
     }
@@ -691,8 +695,13 @@ public class JsonAttrUtil {
     }
 
     public static LinkedList<FindIndexModel<JsonElement>> getAllValueWithAnalisePath(String path, FindIndexModel<JsonElement> begin) {
+        return getAllValueWithAnalisePath(path, begin, new NoFilter());
+    }
+
+    public static LinkedList<FindIndexModel<JsonElement>> getAllValueWithAnalisePath(String path, FindIndexModel<JsonElement> begin, AbsFindIndexModelFilter filter) {
         LinkedList<FindIndexModel<JsonElement>> tmplist = new LinkedList<>();
         if (begin == null) return tmplist;
+        if (filter == null) filter = new NoFilter();
         int find = -1;
         LinkedList<FindIndexModel<JsonElement>> resultlist = new LinkedList<>();
         resultlist.add(begin);
@@ -703,13 +712,15 @@ public class JsonAttrUtil {
             if (find > 0) {
                 head = path.substring(0, find);
                 path = path.substring(find + 1);
+                filter.pauseAction();
             } else {
                 head = path;
                 path = null;
+                filter.startAction();
             }
             for (FindIndexModel<JsonElement> element : resultlist) {
                 if (element.getValue().isJsonObject()) {
-                    head = oneValueOperate(tmplist, head, element);
+                    head = oneValueOperate(tmplist, head, element, filter);
                 } else if (element.getValue().isJsonArray()) {
                     int i = 0;
                     for (JsonElement item : element.getValue().getAsJsonArray()) {
@@ -720,7 +731,7 @@ public class JsonAttrUtil {
                         json.add(element.getKey(), item);
                         entity.setValue(json);
                         entity.setP(element);
-                        head = oneValueOperate(tmplist, head, entity);
+                        head = oneValueOperate(tmplist, head, entity, filter);
                         i++;
                     }
                 }
@@ -730,11 +741,14 @@ public class JsonAttrUtil {
             tmplist = resultlist;
             resultlist = swap;
             tmplist.clear();
+            if (filter.isBreak()) {
+                break;
+            }
         }
-        return resultlist;
+        return filter.getMatchData();
     }
 
-    private static String oneValueOperate(LinkedList<FindIndexModel<JsonElement>> tmplist, String head, FindIndexModel<JsonElement> element) {
+    private static String oneValueOperate(LinkedList<FindIndexModel<JsonElement>> tmplist, String head, FindIndexModel<JsonElement> element, AbsFindIndexModelFilter filter) {
         JsonObject tmp = null;
         tmp = element.getValue().getAsJsonObject();
         SplitStrForKeyAndIndex splitStrForKeyAndIndex = new SplitStrForKeyAndIndex(head);
@@ -745,35 +759,47 @@ public class JsonAttrUtil {
                 int tmpIndex = splitStrForKeyAndIndex.getIndex();
                 if (tmpIndex < 0) {
                     int index = 0;
+                    boolean goOnFlag = true;
                     for (JsonElement elementtmp : tmpelement.getAsJsonArray()) {
                         FindIndexModel<JsonElement> mode = new FindIndexModel<>();
                         mode.setValue(elementtmp);
                         mode.setKey(head);
-                        tmplist.add(mode);
                         mode.setIndex(index);
                         mode.setP(element);
+                        goOnFlag = execByFilter(mode, tmplist, filter);
                         index++;
+                        if (!goOnFlag) break;
                     }
                 } else {
                     JsonElement elementtmp = tmpelement.getAsJsonArray().get(tmpIndex);
                     FindIndexModel<JsonElement> mode = new FindIndexModel<>();
                     mode.setValue(elementtmp);
                     mode.setKey(head);
-                    tmplist.add(mode);
                     mode.setIndex(tmpIndex);
                     mode.setP(element);
+                    execByFilter(mode, tmplist, filter);
                 }
             } else {
+
                 FindIndexModel<JsonElement> mode = new FindIndexModel<>();
                 mode.setValue(tmpelement);
                 mode.setLeaf(true);
                 mode.setP(element);
                 mode.setKey(head);
-                tmplist.add(mode);
-
+                execByFilter(mode, tmplist, filter);
             }
         }
         return head;
+    }
+
+    private static boolean execByFilter(FindIndexModel<JsonElement> mode, LinkedList<FindIndexModel<JsonElement>> tmplist, AbsFindIndexModelFilter filter) {
+        if (filter.isPause()) {
+            tmplist.add(mode);
+        } else {
+            filter.filterAndAdd(mode);
+            if (filter.isBreak()) return false;
+        }
+        return true;
     }
 
     public static int getMaxValue(LinkedList<JsonElement> data) {
