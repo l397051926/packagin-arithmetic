@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -27,7 +28,9 @@ public class ConditionRegex extends DyadicOperationRightIsStaticValue {
     }
 
     protected boolean checkItem(String source) {
-        return Pattern.matches(regex, source);
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(source);
+        return m.find();
     }
 
     protected boolean check(JsonElement source) {
