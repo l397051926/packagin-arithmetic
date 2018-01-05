@@ -57,6 +57,9 @@ public class FindIndexModel<T> {
         return getAllValueByFilter(detailkey, findIndexModels, init, null);
     }
 
+    /**
+     * 依据路径获取全部数据 并用filter 对结果进行过滤
+     */
     public static LinkedList<FindIndexModel<JsonElement>> getAllValueByFilter(String detailkey, List<FindIndexModel<JsonElement>> findIndexModels, LinkedList<FindIndexModel<JsonElement>> init, AbsFindIndexModelFilter filter) {
         if (findIndexModels == null || findIndexModels.size() == 0) return null;
         String key = removeUncareTag(detailkey);

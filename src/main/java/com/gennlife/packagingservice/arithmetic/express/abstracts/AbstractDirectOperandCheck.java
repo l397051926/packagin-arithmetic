@@ -62,6 +62,9 @@ public abstract class AbstractDirectOperandCheck implements SupportNotOperatorIn
 
     protected abstract boolean check(JsonElement source);
 
+    /**
+     * 操作符是否允许空匹配
+     */
     public final boolean isEmptyListOK() {
         boolean findFlag = allEmptyList();
         if (isNot) return !findFlag;

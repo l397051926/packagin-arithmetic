@@ -13,9 +13,15 @@ public abstract class AbsFindIndexModelFilter {
 
     private boolean pause = false;
     private boolean breakFlag = false;
+    /**
+     * 原始数据是否为空
+     * */
+    private boolean isDataEmpty = true;
 
     public void filterAndAdd(FindIndexModel<JsonElement> find) {
         if (breakFlag) return;
+        if (find == null) return;
+        isDataEmpty = false;
         if (isMatch(find.getValue())) matchResult.add(find);
     }
 
@@ -57,5 +63,9 @@ public abstract class AbsFindIndexModelFilter {
 
     public void clearResult() {
         this.matchResult.clear();
+    }
+
+    public boolean isDataEmpty() {
+        return isDataEmpty;
     }
 }

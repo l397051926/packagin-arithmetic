@@ -107,7 +107,7 @@ public class DirectOperandDatas extends AbstractOperandDatasWrapper implements O
             elements = FindIndexModel.getAllValueByFilter(detailkey, datas, null, filter);
         }
         if (elements == null || elements.size() == 0) {
-            if (op.isEmptyListOK()) {
+            if (op.isEmptyListOK() && filter.isDataEmpty()) {
                 this.findPathNode = getContextNode();
             } else {
                 this.findPathNode = null;
