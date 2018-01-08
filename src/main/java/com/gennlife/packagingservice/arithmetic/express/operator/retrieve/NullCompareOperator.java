@@ -23,11 +23,8 @@ public class NullCompareOperator extends DyadicOperationRightIsStaticValue {
     protected boolean check(JsonElement source) {
         if (JsonAttrUtil.isEmptyJsonElement(source)) return true;
         if (source.isJsonArray()) {
-            for (JsonElement element : source.getAsJsonArray()) {
-                if (!check(element)) {
-                    return false;
-                }
-            }
+            if (source.getAsJsonArray().size() > 0)
+                return false;
             return true;
         }
         return false;

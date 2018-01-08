@@ -19,6 +19,7 @@ import com.google.gson.JsonPrimitive;
 
 import java.util.*;
 
+import static com.gennlife.packagingservice.arithmetic.express.ConditionCheck.setAllOpPath;
 import static com.gennlife.packagingservice.arithmetic.express.factorys.OperandDataFactory.DYADIC_REF_ID_KEY;
 import static com.gennlife.packagingservice.arithmetic.express.factorys.OperandDataFactory.UNARY_REF_ID_KEY;
 import static com.gennlife.packagingservice.rws.RwsCountUtils.*;
@@ -45,6 +46,7 @@ public class RwsConfigTransUtils {
     public static final String RWS_VALUE_LEY = "value";
     public static final String RWS_ORIGIN_ID = "rws_origin_id";
     public static final String RWS_OBJ_HEAD = "rwsJavaObj";
+    public static final String RWS_PATH_SET = "paths";
 
     public static JsonObject transRwsConditionConfig(JsonArray condition) throws ConfigExcept {
         if (JsonAttrUtil.isEmptyJsonElement(condition)) return null;
@@ -120,6 +122,7 @@ public class RwsConfigTransUtils {
             }
         }
         Set<String> idList = new TreeSet<>();
+        TreeSet<String> pathSet = new TreeSet<>();
         for (JsonElement element : attr) {
             JsonObject attrItem = element.getAsJsonObject();
             if (attrItem.has(RWS_CONDITIONS_KEY)) {
@@ -129,11 +132,13 @@ public class RwsConfigTransUtils {
                 String id = JsonAttrUtil.getStringValue(RwsConfigTransUtils.UNIQUE_ID_KEY, attrItem);
                 attrItem.add(RwsCountUtils.CONDTION_KEY, conditionJson);
                 if (!StringUtil.isEmptyStr(id)) idList.add(id);
+                setAllOpPath(pathSet, conditionJson);
             } else if (!isStaticMethod(method)) {
                 throw new ConfigExcept("条件配置错误 : 条件组 attr 为空");
             }
         }
         configJson.add(REF_ID_LIST_KEY, JsonAttrUtil.toJsonTree(idList));
+        configJson.add(RwsConfigTransUtils.RWS_PATH_SET, JsonAttrUtil.toJsonTree(pathSet));
     }
 
     private static void transActiveConfig(JsonObject configItem, JsonObject result) throws ConfigExcept {

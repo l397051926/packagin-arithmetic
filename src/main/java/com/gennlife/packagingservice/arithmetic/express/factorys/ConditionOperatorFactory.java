@@ -1,19 +1,26 @@
 package com.gennlife.packagingservice.arithmetic.express.factorys;
 
 
+import com.gennlife.packagingservice.arithmetic.express.ConditionCheck;
+import com.gennlife.packagingservice.arithmetic.express.exceptions.ConfigError;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.ConditionOperatorInterface;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.InstructionOperatorInterface;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.SupportNotOperatorInterface;
 import com.gennlife.packagingservice.arithmetic.express.operator.retrieve.*;
 import com.gennlife.packagingservice.arithmetic.pretreatment.enums.InstructionOperatorEnum;
+import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * Created by Chenjinfeng on 2017/6/22.
  */
 public class ConditionOperatorFactory {
+    public static final String CUSTOM_TYPE_KEY = "customType";
     private static final Logger logger = LoggerFactory.getLogger(ConditionOperatorFactory.class);
 
     public static ConditionOperatorInterface getConditionOperator(String key) {
@@ -43,7 +50,21 @@ public class ConditionOperatorFactory {
         return result;
     }
 
-    public static InstructionOperatorInterface getInstructionOperator(String key) {
+    /**
+     * demo for custom:
+     * <code>
+     * JsonObject config = new JsonObject();
+     * config.addProperty(ConditionOperatorFactory.CUSTOM_TYPE_KEY, "custom");
+     * ConditionCheck conditionCheck = new ConditionCheck(null);
+     * Map<String, String> map = new HashMap<>();
+     * conditionCheck.setCustomClassMap(map);
+     * map.put("custom", "com.gennlife.packagingservice.arithmetic.express.operator.retrieve.NullCompareOperator{@link NullCompareOperator}");
+     * InstructionOperatorInterface result = ConditionOperatorFactory.getInstructionOperator(InstructionOperatorEnum.CUSTOM.name(), config, conditionCheck);
+     * </code>
+     *
+     * @throws ConfigError
+     */
+    public static InstructionOperatorInterface getInstructionOperator(String key, JsonObject config, ConditionCheck context) {
         InstructionOperatorEnum matchEnum = check(key);
         InstructionOperatorInterface result = null;
         boolean isNot = false;
@@ -51,7 +72,23 @@ public class ConditionOperatorFactory {
             isNot = true;
             key = key.substring(1);
         }
-        if (matchEnum == InstructionOperatorEnum.EQUAL) result = new ConditionEualsIgnoreCase();
+        if (matchEnum == InstructionOperatorEnum.CUSTOM) {
+            String type = JsonAttrUtil.getStringValue(CUSTOM_TYPE_KEY, config);
+            if (StringUtil.isEmptyStr(type))
+                throw new ConfigError(CUSTOM_TYPE_KEY + " is null");
+            Map<String, String> customClassMap = context.getCustomClassMap();
+            if (customClassMap == null)
+                throw new ConfigError("custom class map is null");
+            if (customClassMap.containsKey(type)) {
+                try {
+                    result = (InstructionOperatorInterface) Class.forName(customClassMap.get(type)).newInstance();
+                } catch (Exception e) {
+                    throw new ConfigError("error : " + e.getMessage());
+                }
+            } else {
+                throw new ConfigError("custom class map is not contain " + type);
+            }
+        } else if (matchEnum == InstructionOperatorEnum.EQUAL) result = new ConditionEualsIgnoreCase();
         else if (matchEnum == InstructionOperatorEnum.CONTAIN) result = new ConditionContainIgnoreCase();
         else if (matchEnum == InstructionOperatorEnum.REGEX) result = new ConditionRegex();
         else if (matchEnum == InstructionOperatorEnum.ISNULL) result = new NullCompareOperator();
@@ -71,7 +108,7 @@ public class ConditionOperatorFactory {
             if (result instanceof SupportNotOperatorInterface)
                 ((SupportNotOperatorInterface) result).setNot(isNot);
             else {
-                logger.error("not support  'not' operator for " + key);
+                throw new ConfigError("not support  'not' operator for " + key);
             }
         }
         return result;

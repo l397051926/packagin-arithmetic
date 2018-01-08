@@ -46,9 +46,11 @@ public abstract class DyadicOperationRightIsStaticValue extends AbstractDirectOp
         if (JsonAttrUtil.isEmptyJsonElement(value)) setTarget("");
         else if (value.isJsonArray()) setTarget(value.getAsJsonArray());
         else if (value.isJsonPrimitive()) setTarget(value.getAsString());
+        else if (value.isJsonObject()) setTarget(value.getAsJsonObject());
         OperandDatasForEachCheckInterface datasource = OperandDataFactory.getUnary(config, nodeContext, conditionCheck);
         countByDataSource(config, datasource);
     }
+
 
     protected void countByDataSource(JsonObject config, OperandDatasForEachCheckInterface datasourceCanCheck) {
         datasourceCanCheck.parse(this);
@@ -56,6 +58,10 @@ public abstract class DyadicOperationRightIsStaticValue extends AbstractDirectOp
         setFindFlag(findPathNode != null);
         setFindPathNode(findPathNode);
 
+    }
+
+    public void setTarget(JsonObject asJsonObject) {
+        throw new UnsupportedOperationException("配置中的value 不能是jsonObject");
     }
 
     protected abstract void setTarget(JsonArray jsonArray);
@@ -66,6 +72,9 @@ public abstract class DyadicOperationRightIsStaticValue extends AbstractDirectOp
         return false;
     }
 
+    /**
+     * 当配置中的部分信息来自于其他地方时使用
+     */
     protected JsonElement merge(JsonElement value, JsonElement staticValue) {
         throw new UnsupportedOperationException();
     }

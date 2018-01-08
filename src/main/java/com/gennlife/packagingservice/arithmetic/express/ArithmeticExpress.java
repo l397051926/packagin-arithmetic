@@ -49,7 +49,7 @@ public class ArithmeticExpress implements ExpressInterface {
         String detailkey = JsonAttrUtil.getStringValue(DETAIL_KEY, config);
         if (!StringUtil.isEmptyStr(detailkey))
             conditionCheck.setLastPath(detailkey);
-        InstructionOperatorInterface conditionOperator = ConditionOperatorFactory.getInstructionOperator(detailoperator);
+        InstructionOperatorInterface conditionOperator = ConditionOperatorFactory.getInstructionOperator(detailoperator,config,conditionCheck );
         if (conditionOperator == null) {
             logger.error("unknown operator " + detailoperator);
         }

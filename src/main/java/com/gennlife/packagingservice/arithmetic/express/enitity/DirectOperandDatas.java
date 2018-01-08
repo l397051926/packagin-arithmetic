@@ -34,13 +34,10 @@ public class DirectOperandDatas extends AbstractOperandDatasWrapper implements O
 
     public DirectOperandDatas(JsonObject config, PathNode contextNode, ConditionCheck conditionCheck) {
         super(config, contextNode, conditionCheck);
-        detailkey = JsonAttrUtil.getStringValue(DETAIL_KEY, config);
         needPath = JsonAttrUtil.getStringValue(ExpressInterface.NEED_PATH_KEY, config);
+        detailkey = getDirectPath(config);
         if (StringUtil.isEmptyStr(detailkey)) {
-            detailkey = JsonAttrUtil.getStringValue(DESCIBEKEY, config);
-        }
-        if (StringUtil.isEmptyStr(detailkey)) {
-            throw new PathNodeError("detailkey  must not null " + config);
+            throw new PathNodeError("配置中的源路径不能为空 " + config);
         }
         createAllNot();
         this.findindex = PathNode.getPathItem(contextNode, detailkey);
@@ -49,6 +46,14 @@ public class DirectOperandDatas extends AbstractOperandDatasWrapper implements O
         }
 
 
+    }
+
+    public static String getDirectPath(JsonObject config) {
+        String detailkey = JsonAttrUtil.getStringValue(DETAIL_KEY, config);
+        if (StringUtil.isEmptyStr(detailkey)) {
+            detailkey = JsonAttrUtil.getStringValue(DESCIBEKEY, config);
+        }
+        return detailkey;
     }
 
     private void createAllNot() {

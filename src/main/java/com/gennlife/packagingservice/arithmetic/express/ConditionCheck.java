@@ -5,7 +5,9 @@ import com.gennlife.packagingservice.arithmetic.express.enitity.*;
 import com.gennlife.packagingservice.arithmetic.express.exceptions.ConfigError;
 import com.gennlife.packagingservice.arithmetic.express.exceptions.ExpressNoOriginDataError;
 import com.gennlife.packagingservice.arithmetic.express.interfaces.SourceDataWrapperInterface;
+import com.gennlife.packagingservice.arithmetic.pretreatment.enums.LogicExpressEnum;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
+import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,9 +17,12 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
+import static com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractLogicExpress.checkLogicExpress;
 import static com.gennlife.packagingservice.arithmetic.express.abstracts.ExpressInterface.DETAILS_ARRAY_KEY;
 import static com.gennlife.packagingservice.arithmetic.express.abstracts.ExpressInterface.OPERATOR_KEY;
+import static com.gennlife.packagingservice.arithmetic.express.enitity.DirectOperandDatas.getDirectPath;
 
 /**
  * Created by Chenjinfeng on 2017/6/15.
@@ -36,6 +41,7 @@ public class ConditionCheck {
     protected static Logger logger = LoggerFactory.getLogger(ConditionCheck.class);
     public static final String REFKEY = "ref";
     private boolean init = false;
+    private Map<String, String> customClassMap = null;
 
     public ConditionCheck(JsonObject toDoCondition, JsonObject globalcondition) {
         if (toDoCondition != null) this.toDoCondition = JsonAttrUtil.deepCopy(toDoCondition).getAsJsonObject();
@@ -43,7 +49,7 @@ public class ConditionCheck {
         this.globalcondition = globalcondition;
         if (toDoCondition == null) {
             this.condition = null;
-            return ;
+            return;
         }
         if (!toDoCondition.has("condition")) {
             this.condition = toDoCondition;
@@ -51,6 +57,14 @@ public class ConditionCheck {
             this.condition = toDoCondition.getAsJsonObject("condition");
         }
         initCondition();
+    }
+
+    public Map<String, String> getCustomClassMap() {
+        return customClassMap;
+    }
+
+    public void setCustomClassMap(Map<String, String> customClassMap) {
+        this.customClassMap = customClassMap;
     }
 
     public String getLastPath() {
@@ -193,6 +207,7 @@ public class ConditionCheck {
         lists.add(findIndexModel);
         return getPathItemsByPathNode(lists, null);
     }
+
     public PathNode getPathItemsByPathNode(LinkedList<FindIndexModel<JsonElement>> lists, PathNode pathNode) {
         setOrigindata(lists);
         if (init == false) initCondition();
@@ -260,5 +275,25 @@ public class ConditionCheck {
         this.globalcondition = globalCondition;
     }
 
+    public static void setAllOpPath(Set<String> pathSet, JsonObject conditionConf) {
+        if (JsonAttrUtil.isEmptyJsonElement(conditionConf)) {
+            return;
+        }
+        if (pathSet == null) return;
+        String operator = JsonAttrUtil.getStringValue(OPERATOR_KEY, conditionConf);
+        LogicExpressEnum logicExpressEnum = checkLogicExpress(operator);
+        if (logicExpressEnum == null) {
+            String path = getDirectPath(conditionConf);
+            if (!StringUtil.isEmptyStr(path)) pathSet.add(path);
+        } else {
+            JsonArray details = JsonAttrUtil.getJsonArrayValue(DETAILS_ARRAY_KEY, conditionConf);
+            if (details == null) throw new ConfigError(DETAILS_ARRAY_KEY + " is null ,operator == " + operator);
+            for (JsonElement element : details) {
+                setAllOpPath(pathSet, element.getAsJsonObject());
+            }
+        }
+
+
+    }
 
 }
