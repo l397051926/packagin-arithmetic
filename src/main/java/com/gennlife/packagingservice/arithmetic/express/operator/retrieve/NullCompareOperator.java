@@ -34,4 +34,5 @@ public class NullCompareOperator extends DyadicOperationRightIsStaticValue {
     public boolean allEmptyList() {
         return true;
     }
+
 }

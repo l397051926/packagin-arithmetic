@@ -708,11 +708,13 @@ public class JsonAttrUtil {
         LinkedList<FindIndexModel<JsonElement>> swap = null;
         String head = null;
         while (!StringUtil.isEmptyStr(path)) {
+            boolean hasNext = false;
             find = path.indexOf('.');
             if (find > 0) {
                 head = path.substring(0, find);
                 path = path.substring(find + 1);
                 filter.pauseAction();
+                hasNext = path.indexOf('.') > 0;
             } else {
                 head = path;
                 path = null;
@@ -720,19 +722,23 @@ public class JsonAttrUtil {
             }
             for (FindIndexModel<JsonElement> element : resultlist) {
                 if (element.getValue().isJsonObject()) {
-                    head = oneValueOperate(tmplist, head, element, filter);
+                    head = oneValueOperate(tmplist, head, element, filter, hasNext);
                 } else if (element.getValue().isJsonArray()) {
-                    int i = 0;
-                    for (JsonElement item : element.getValue().getAsJsonArray()) {
-                        FindIndexModel<JsonElement> entity = new FindIndexModel<>();
-                        entity.setIndex(i);
-                        entity.setKey(element.getKey());
-                        JsonObject json = new JsonObject();
-                        json.add(element.getKey(), item);
-                        entity.setValue(json);
-                        entity.setP(element);
-                        head = oneValueOperate(tmplist, head, entity, filter);
-                        i++;
+                    if (hasNext) {
+                        int i = 0;
+                        for (JsonElement item : element.getValue().getAsJsonArray()) {
+                            FindIndexModel<JsonElement> entity = new FindIndexModel<>();
+                            entity.setIndex(i);
+                            entity.setKey(element.getKey());
+                            JsonObject json = new JsonObject();
+                            json.add(element.getKey(), item);
+                            entity.setValue(json);
+                            entity.setP(element);
+                            head = oneValueOperate(tmplist, head, entity, filter, hasNext);
+                            i++;
+                        }
+                    } else {
+                        oneValueOperate(tmplist, head, element, filter, hasNext);
                     }
                 }
             }
@@ -748,39 +754,51 @@ public class JsonAttrUtil {
         return filter.getMatchData();
     }
 
-    private static String oneValueOperate(LinkedList<FindIndexModel<JsonElement>> tmplist, String head, FindIndexModel<JsonElement> element, AbsFindIndexModelFilter filter) {
+    private static String oneValueOperate(LinkedList<FindIndexModel<JsonElement>> tmplist, String head, FindIndexModel<JsonElement> element, AbsFindIndexModelFilter filter, boolean hasNext) {
         JsonObject tmp = null;
-        tmp = element.getValue().getAsJsonObject();
         SplitStrForKeyAndIndex splitStrForKeyAndIndex = new SplitStrForKeyAndIndex(head);
         head = splitStrForKeyAndIndex.getKey();
+        if (element.getValue().isJsonArray()) {
+            for (JsonElement item : element.getValue().getAsJsonArray())
+                doItem(tmplist, head, element, filter, item.getAsJsonObject(), splitStrForKeyAndIndex, hasNext);
+        } else {
+            tmp = element.getValue().getAsJsonObject();
+            doItem(tmplist, head, element, filter, tmp, splitStrForKeyAndIndex, hasNext);
+        }
+        return splitStrForKeyAndIndex.getKey();
+    }
+
+    private static void doItem(LinkedList<FindIndexModel<JsonElement>> tmplist, String head, FindIndexModel<JsonElement> element, AbsFindIndexModelFilter filter, JsonObject tmp, SplitStrForKeyAndIndex splitStrForKeyAndIndex, boolean hasNext) {
         if (tmp.has(head)) {
             JsonElement tmpelement = tmp.get(head);
             if (tmpelement.isJsonArray()) {
                 int tmpIndex = splitStrForKeyAndIndex.getIndex();
                 if (tmpIndex < 0) {
-                    int index = 0;
-                    boolean goOnFlag = true;
-                    for (JsonElement elementtmp : tmpelement.getAsJsonArray()) {
+                    if (hasNext) {
+                        int index = 0;
+                        boolean goOnFlag = true;
+                        for (JsonElement elementtmp : tmpelement.getAsJsonArray()) {
+                            FindIndexModel<JsonElement> mode = new FindIndexModel<>();
+                            mode.setValue(elementtmp);
+                            mode.setKey(head);
+                            mode.setIndex(index);
+                            mode.setP(element);
+                            goOnFlag = execByFilter(mode, tmplist, filter);
+                            index++;
+                            if (!goOnFlag) break;
+                        }
+                    } else {
                         FindIndexModel<JsonElement> mode = new FindIndexModel<>();
-                        mode.setValue(elementtmp);
+                        mode.setValue(tmpelement.getAsJsonArray());
                         mode.setKey(head);
-                        mode.setIndex(index);
                         mode.setP(element);
-                        goOnFlag = execByFilter(mode, tmplist, filter);
-                        index++;
-                        if (!goOnFlag) break;
+                        execByFilter(mode, tmplist, filter);
                     }
                 } else {
-                    JsonElement elementtmp = tmpelement.getAsJsonArray().get(tmpIndex);
-                    FindIndexModel<JsonElement> mode = new FindIndexModel<>();
-                    mode.setValue(elementtmp);
-                    mode.setKey(head);
-                    mode.setIndex(tmpIndex);
-                    mode.setP(element);
-                    execByFilter(mode, tmplist, filter);
+                    JsonArray arrayValue = tmpelement.getAsJsonArray();
+                    doItemInArray(tmplist, head, element, filter, splitStrForKeyAndIndex, arrayValue);
                 }
             } else {
-
                 FindIndexModel<JsonElement> mode = new FindIndexModel<>();
                 mode.setValue(tmpelement);
                 mode.setLeaf(true);
@@ -789,7 +807,24 @@ public class JsonAttrUtil {
                 execByFilter(mode, tmplist, filter);
             }
         }
-        return head;
+    }
+
+    private static void doItemInArray(LinkedList<FindIndexModel<JsonElement>> tmplist, String head, FindIndexModel<JsonElement> element, AbsFindIndexModelFilter filter, SplitStrForKeyAndIndex splitStrForKeyAndIndex, JsonArray arrayValue) {
+        JsonElement elementtmp = arrayValue.get(splitStrForKeyAndIndex.getIndex());
+        FindIndexModel<JsonElement> mode = new FindIndexModel<>();
+        mode.setValue(elementtmp);
+        mode.setKey(head);
+        mode.setIndex(splitStrForKeyAndIndex.getIndex());
+        mode.setP(element);
+        execByFilter(mode, tmplist, filter);
+    }
+
+    private static void setArrayValue(LinkedList<FindIndexModel<JsonElement>> tmplist, String head, FindIndexModel<JsonElement> element, AbsFindIndexModelFilter filter, JsonArray arrayValue) {
+        FindIndexModel<JsonElement> mode = new FindIndexModel<>();
+        mode.setValue(arrayValue);
+        mode.setKey(head);
+        mode.setP(element);
+        execByFilter(mode, tmplist, filter);
     }
 
     private static boolean execByFilter(FindIndexModel<JsonElement> mode, LinkedList<FindIndexModel<JsonElement>> tmplist, AbsFindIndexModelFilter filter) {
