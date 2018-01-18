@@ -7,6 +7,7 @@ import org.apache.http.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -84,10 +85,11 @@ public class HttpRequestUtils {
         cm = getPoolingHttpClientConnectionManager(maxTotal, maxPerRoute, registry);
         initPoolConfig = true;
     }
-    public static void destory()
-    {
-        if(cm!=null) cm.close();
+
+    public static void destory() {
+        if (cm != null) cm.close();
     }
+
     /**
      * post
      *
@@ -101,6 +103,7 @@ public class HttpRequestUtils {
         try {
             RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(socketTimeOut).setConnectTimeout(connectTimeOut).build();
             method.setConfig(requestConfig);
+            method.setHeader("Accept-Encoding", "gzip,deflate");
             if (null != jsonParam) {
                 StringEntity entity = new StringEntity(jsonParam, "utf-8");
                 entity.setContentEncoding("UTF-8");
@@ -110,24 +113,33 @@ public class HttpRequestUtils {
             }
             HttpResponse result = httpClient.execute(method);
             url = URLDecoder.decode(url, "UTF-8");
+
             if (result.getStatusLine().getStatusCode() == 200) {
-                String str = "";
                 try {
-                    str = EntityUtils.toString(result.getEntity(), "utf-8");
-                    return str;
+                    return getDataString(result);
                 } catch (Exception e) {
                     logger.error("" + url, e);
                 }
-            }
-            else
-            {
-                String str = EntityUtils.toString(result.getEntity(), "utf-8");
-                logger.error("" + url+" error "+str);
+            } else {
+                String str = getDataString(result);
+                logger.error("" + url + " error " + str);
             }
         } catch (IOException e) {
             logger.error("" + url, e);
         }
         return null;
+    }
+
+    public static String getDataString(HttpResponse result) throws IOException {
+        Header contentHeader = result.getFirstHeader("Content-Encoding");
+        String str = "";
+        if (contentHeader != null
+                && contentHeader.getValue().toLowerCase().indexOf("gzip") > -1) {
+            str = EntityUtils.toString(new GzipDecompressingEntity(result.getEntity()));
+        } else {
+            str = EntityUtils.toString(result.getEntity(), "utf-8");
+        }
+        return str;
     }
 
     public static String httpPost(String url, String jsonParam) {
@@ -146,23 +158,20 @@ public class HttpRequestUtils {
     public static String httpGet(String url, int socketTimeOut, int connectTimeOut) {
         HttpClient httpClient = initHttpClient();
         HttpGet method = new HttpGet(url);
+        method.setHeader("Accept-Encoding", "gzip,deflate");
         try {
             RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(socketTimeOut).setConnectTimeout(connectTimeOut).build();
             method.setConfig(requestConfig);
             HttpResponse result = httpClient.execute(method);
             if (result.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                String str = null;
                 try {
-                    str = EntityUtils.toString(result.getEntity(), "utf-8");
-                    return str;
+                    return getDataString(result);
                 } catch (Exception e) {
                     logger.error("" + url, e);
                 }
-            }
-            else
-            {
-                String str = EntityUtils.toString(result.getEntity(), "utf-8");
-                logger.error("" + url+" error "+str);
+            } else {
+                String str = getDataString(result);
+                logger.error("" + url + " error " + str);
             }
         } catch (IOException e) {
             logger.error("" + url, e);
@@ -187,12 +196,13 @@ public class HttpRequestUtils {
             RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(3000).setConnectTimeout(CONNECTTIMEOUT).build();
             method.setConfig(requestConfig);
             method.setEntity(entity);
+            method.setHeader("Accept-Encoding", "gzip,deflate");
             HttpResponse result = httpClient.execute(method);
             url = URLDecoder.decode(url, "UTF-8");
             if (result.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 String str = null;
                 try {
-                    str = EntityUtils.toString(result.getEntity(), "utf-8");
+                    str = getDataString(result);
                     return str;
                 } catch (Exception e) {
                     logger.error("" + url, e);
