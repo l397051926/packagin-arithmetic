@@ -380,28 +380,22 @@ public class PathNode {
     }
 
     private static PathNode getNextPathNode(JsonElement value) {
-        PathNode next = null;
+        PathNode next = new PathNode();
         if (value == null) {
-            next = null;
+
         } else if (value.isJsonObject()) {
             JsonObject json = value.getAsJsonObject();
-            boolean isEmpty = true;
             for (Map.Entry<String, JsonElement> item : json.entrySet()) {
-                isEmpty = false;
                 if (!isLeaf(item.getValue())) {
-                    if (next == null) next = new PathNode();
                     next.addJsonNode(item.getKey(), getNextPathNode(item.getValue()));
                 }
             }
-            if (next == null && !isEmpty)
-                next = new PathNode();
         } else if (value.isJsonArray()) {
             JsonArray array = value.getAsJsonArray();
             if (array.size() > 0) {
                 int i = 0;
                 for (JsonElement element : array) {
                     if (!isLeaf(element)) {
-                        if (next == null) next = new PathNode();
                         next.addArrayValue(i, getNextPathNode(element));
                     }
                     i++;
