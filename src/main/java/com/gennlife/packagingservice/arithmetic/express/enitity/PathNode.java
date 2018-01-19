@@ -385,13 +385,16 @@ public class PathNode {
             next = null;
         } else if (value.isJsonObject()) {
             JsonObject json = value.getAsJsonObject();
-
+            boolean isEmpty = true;
             for (Map.Entry<String, JsonElement> item : json.entrySet()) {
+                isEmpty = false;
                 if (!isLeaf(item.getValue())) {
                     if (next == null) next = new PathNode();
                     next.addJsonNode(item.getKey(), getNextPathNode(item.getValue()));
                 }
             }
+            if (next == null && !isEmpty)
+                next = new PathNode();
         } else if (value.isJsonArray()) {
             JsonArray array = value.getAsJsonArray();
             if (array.size() > 0) {

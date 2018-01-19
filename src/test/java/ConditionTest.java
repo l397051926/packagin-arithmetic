@@ -4,6 +4,7 @@ import com.gennlife.packagingservice.arithmetic.express.enitity.MapSourceDataWra
 import com.gennlife.packagingservice.arithmetic.express.enitity.PathItem;
 import com.gennlife.packagingservice.arithmetic.express.enitity.PathNode;
 import com.gennlife.packagingservice.arithmetic.express.status.AbsFindIndexModelFilter;
+import com.gennlife.packagingservice.arithmetic.express.status.NoFilter;
 import com.gennlife.packagingservice.arithmetic.utils.FileUtil;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
 import com.gennlife.packagingservice.rws.ConfigExcept;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedList;
 import java.util.Set;
 
+import static com.gennlife.packagingservice.arithmetic.express.enitity.FindIndexModel.getAllValueByFilter;
 import static com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil.exchangeForFindIndexModel;
 import static com.gennlife.packagingservice.rws.RwsConfigTransUtils.getRefIdList;
 import static com.gennlife.packagingservice.rws.RwsConfigTransUtils.transRwsConditionConfig;
@@ -125,24 +127,11 @@ public class ConditionTest {
     public void testGetAllValueWithAnalisePath() {
         String data = FileUtil.readFile("a.json");
         JsonObject json = JsonAttrUtil.toJsonObject(data);
-        String detailkey="a.b.c.d.e";
+        String detailkey="a.b.c.ll";
         LinkedList<FindIndexModel<JsonElement>> elements=new LinkedList<>();
         LinkedList<FindIndexModel<JsonElement>> datas = exchangeForFindIndexModel(json);
-
-        AbsFindIndexModelFilter ab= new AbsFindIndexModelFilter() {
-            @Override
-            public boolean isMatch(JsonElement target) {
-                if (target != null && target.isJsonPrimitive() && target.getAsString().contains("3"))
-                {
-                    makeBreak();
-                    return false;
-                }
-                if (target != null && target.isJsonPrimitive() && target.getAsString().contains("2"))
-                    return true;
-                return false;
-            }
-        };
-        LinkedList<FindIndexModel<JsonElement>> result = FindIndexModel.getAllValueByFilter(detailkey, datas, elements,ab);
-        result = result;
+        AbsFindIndexModelFilter filter=new NoFilter();
+        LinkedList<FindIndexModel<JsonElement>> t= getAllValueByFilter(detailkey,datas, null,filter);
+        t=t;
     }
 }
