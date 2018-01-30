@@ -247,8 +247,7 @@ public class ConditionCheck {
         DirectSourceDataWrapper directDataWrapper = new DirectSourceDataWrapper();
         directDataWrapper.setData(origindata);
         addData(ORIGIN_DATA_KEY, directDataWrapper);
-        PathNode dataPath = PathNode.getPathNodeFromJson(origindata);
-        PathNodeDataWrapper pathNodeDataWrapper = new PathNodeDataWrapper(dataPath);
+        PathNodeDataWrapper pathNodeDataWrapper = new PathNodeDataWrapper(origindata);
         addData(ORIGIN_DATA_PATH_KEY, pathNodeDataWrapper);
     }
 

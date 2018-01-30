@@ -43,7 +43,8 @@ public class DateUtil {
         SimpleDateFormat format = new SimpleDateFormat(getymd());
         return format.format(date);
     }
-    public static String format(Date date,String formatStr) {
+
+    public static String format(Date date, String formatStr) {
         SimpleDateFormat format = new SimpleDateFormat(formatStr);
         return format.format(date);
     }
@@ -105,27 +106,21 @@ public class DateUtil {
 
     public static Date getDate(String date) {
         SimpleDateFormat dateFormat_hms = new SimpleDateFormat(getYmd_hms());
-        SimpleDateFormat dateFormat = new SimpleDateFormat(getymd());
-        SimpleDateFormat dateFormatYear = new SimpleDateFormat("yyyy");
         Date value = null;
         try {
             value = dateFormat_hms.parse(date);
             return value;
-            //	return formatDateFromDate(value);
         } catch (Exception localException) {
             try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(getymd());
                 value = dateFormat.parse(date);
                 return value;
-                //	return formatDateFromDate(value);
             } catch (Exception localException1) {
-
                 try {
+                    SimpleDateFormat dateFormatYear = new SimpleDateFormat("yyyy");
                     value = dateFormatYear.parse(date);
                     return value;
-                    //	return formatDateFromDate(value);
-
                 } catch (ParseException e) {
-                    //e.printStackTrace();
                 }
             }
         }
