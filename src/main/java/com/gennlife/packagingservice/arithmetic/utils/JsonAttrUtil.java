@@ -714,11 +714,12 @@ public class JsonAttrUtil {
                 head = path.substring(0, find);
                 path = path.substring(find + 1);
                 filter.pauseAction();
-                hasNext = path.indexOf('.') > 0;
+                hasNext = true;
             } else {
                 head = path;
                 path = null;
                 filter.startAction();
+                hasNext=false;
             }
             for (FindIndexModel<JsonElement> element : resultlist) {
                 if (element.getValue().isJsonObject()) {

@@ -88,6 +88,7 @@ public abstract class AbstractPath {
             buffer.append(item.getKey()).append(".");
         }
         buffer.append(last.getKey());
+        indexs.addLast(last);
         return buffer.toString();
     }
 

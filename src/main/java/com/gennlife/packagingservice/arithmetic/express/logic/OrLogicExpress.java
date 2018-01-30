@@ -38,6 +38,11 @@ public class OrLogicExpress extends AbstractLogicExpress {
         } else {
             if (tmpNodeList.size() == 1) {
                 tmpNode = tmpNodeList.remove(0);
+            } else if (allGroupName.size() == 1) {
+                tmpNode = tmpNodeList.remove(0);
+                for (PathNode node : tmpNodeList) {
+                    tmpNode.add(node);
+                }
             } else {
                 PathNode originDataPath = this.getConditionCheck().getOriginDataPath();
                 LinkedList<LinkedList<PathItem>> indexs = new LinkedList<>();

@@ -116,7 +116,7 @@ public class ConditionTest {
         JsonObject conditionJson = JsonAttrUtil.toJsonObject(condition);
         ConditionCheck conditionCheck = new ConditionCheck(conditionJson);
         PathNode result = conditionCheck.getPathItemsByPathNode(valueJson);
-        LinkedList<LinkedList<PathItem>> t = PathNode.getPathItem(result, "a.b.c.d.e");
+        LinkedList<LinkedList<PathItem>> t = PathNode.getPathItem(result, "a.b");
         t=t;
         result = result;
 
