@@ -4,6 +4,7 @@ package com.gennlife.packagingservice.arithmetic.express.enitity;
 import com.gennlife.packagingservice.arithmetic.express.abstracts.AbstractPath;
 import com.gennlife.packagingservice.arithmetic.express.exceptions.PathNodeError;
 import com.gennlife.packagingservice.arithmetic.utils.JsonAttrUtil;
+import com.gennlife.packagingservice.arithmetic.utils.ObjUtils;
 import com.gennlife.packagingservice.arithmetic.utils.StringUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -11,12 +12,13 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by Chenjinfeng on 2017/10/16.
  */
-public class PathNode {
+public class PathNode implements Serializable {
     private transient LinkedList<PathItem> pPath;
     private LinkedHashMap<String, PathNode> map;
     private LinkedHashMap<Integer, PathNode> arrayItems;
@@ -317,34 +319,7 @@ public class PathNode {
     }
 
     public PathNode deepCopy() {
-        PathNode copy = new PathNode();
-        LinkedHashMap<String, PathNode> map = null;
-        LinkedHashMap<Integer, PathNode> arrayItems = null;
-        if (this.hasJsonObj()) {
-            map = new LinkedHashMap<>();
-            addDeepCopyIntoMap(map, this.getMap());
-            copy.setMap(map);
-        }
-        if (this.hasArrayValue()) {
-            arrayItems = new LinkedHashMap<>();
-            addDeepCopyIntoMap(arrayItems, this.getArrayItems());
-            copy.setArrayItems(arrayItems);
-        }
-
-        return copy;
-    }
-
-    public <T> void addDeepCopyIntoMap(Map<T, PathNode> map, Map<T, PathNode> source) {
-        if (source == null)
-            return;
-        for (Map.Entry<T, PathNode> entity : source.entrySet()) {
-            PathNode child = null;
-            child = entity.getValue();
-            if (child == null)
-                map.put(entity.getKey(), child);
-            else
-                map.put(entity.getKey(), child.deepCopy());
-        }
+        return ObjUtils.deepClone(this);
     }
 
     public static PathNode getPathNodeFromJson(LinkedList<FindIndexModel<JsonElement>> lists) {
