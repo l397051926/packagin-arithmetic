@@ -208,7 +208,6 @@ public class PathNode implements Serializable {
 
     public static <T extends AbstractPath> PathNode getPathNodeFromPath(LinkedList<LinkedList<T>> indexs) {
         if (indexs == null || indexs.size() == 0) return null;
-        indexs.removeIf(item -> item == null || item.size() == 0);
         PathNode head = new PathNode();
         for (LinkedList<T> items : indexs) {
             PathNode p = getPathNodeFromPathByOne(items);
